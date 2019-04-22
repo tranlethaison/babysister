@@ -12,6 +12,7 @@ from babysister.tracker import IOUtracker
 
 def demo(
     frames_dir,
+    score_thresh=0.25,
     input_size=(608,608),
     anchor_path="babysister/YOLOv3_TensorFlow/data/yolo_anchors.txt",
     class_name_path="babysister/YOLOv3_TensorFlow/data/coco.names",
@@ -20,7 +21,7 @@ def demo(
     yolov3 = YOLOv3(input_size, anchor_path, class_name_path, restore_path)
     iou_tracker = IOUtracker(sigma_l=0, sigma_h=0.5, sigma_iou=0.5, t_min=2)
 
-    frame_paths = sorted(glob.glob(frames_dir + '/*.jpg'))[4400:]
+    frame_paths = sorted(glob.glob(frames_dir + '/*.jpg'))
     assert len(frame_paths) > 0
 
     # fps
@@ -43,18 +44,20 @@ def demo(
         # filter
         tmp_boxes, tmp_scores, tmp_labels = [], [], []
         for box, score, label in zip(boxes, scores, labels):
-            if yolov3.classes[label] == 'person':
+            if yolov3.classes[label] == 'person'\
+            and score >= score_thresh:
                 tmp_boxes.append(box)
                 tmp_scores.append(score)
                 tmp_labels.append(label)
         boxes, scores, labels = np.array(tmp_boxes), tmp_scores, tmp_labels
 
         # rescale boxes
-        size_ratio = np.divide(frame.shape[:2], input_size)
-        boxes[:,0] *= size_ratio[1]
-        boxes[:,1] *= size_ratio[0]
-        boxes[:,2] *= size_ratio[1]
-        boxes[:,3] *= size_ratio[0]
+        if boxes.shape[0] > 0:
+            size_ratio = np.divide(frame.shape[:2], input_size)
+            boxes[:,0] *= size_ratio[1]
+            boxes[:,1] *= size_ratio[0]
+            boxes[:,2] *= size_ratio[1]
+            boxes[:,3] *= size_ratio[0]
 
         # track
         tracks_active = iou_tracker.track(boxes, scores, frame_num)
@@ -67,13 +70,13 @@ def demo(
 
             cv.putText(
                 frame, "FPS: {:.02f}".format(fps),
-                (30, 30), cv.FONT_HERSHEY_SIMPLEX, 1, (0,0,255), 2)
+                (30, 30), cv.FONT_HERSHEY_SIMPLEX, 0.75, (0,0,255), 1)
 
         for id_, track in enumerate(tracks_active):
             x1, y1, x2, y2 = map(int, track['bboxes'][-1])
             cv.putText(
                 frame, str(id_),
-                (x1,y1+10), cv.FONT_HERSHEY_SIMPLEX, 1, (0,0,255), 2)
+                (x1,y1+20), cv.FONT_HERSHEY_SIMPLEX, 0.75, (0,0,255), 1)
 
         # show
         cv.imshow('Babysister', frame)
