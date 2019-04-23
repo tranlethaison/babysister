@@ -6,9 +6,8 @@ import cv2 as cv
 import numpy as np
 
 from babysister.detector import YOLOv3
-from babysister.YOLOv3_TensorFlow.utils.plot_utils import plot_one_box
 from babysister.tracker import IOUtracker
-
+from babysister.utils import create_unique_color_uchar
 
 def demo(
     frames_dir,
@@ -44,8 +43,8 @@ def demo(
         # filter
         tmp_boxes, tmp_scores, tmp_labels = [], [], []
         for box, score, label in zip(boxes, scores, labels):
-            if yolov3.classes[label] == 'person'\
-            and score >= score_thresh:
+            if yolov3.classes[label] == 'person':
+            # and score >= score_thresh:
                 tmp_boxes.append(box)
                 tmp_scores.append(score)
                 tmp_labels.append(label)
@@ -60,33 +59,46 @@ def demo(
             boxes[:,3] *= size_ratio[0]
 
         # track
-        tracks_active = iou_tracker.track(boxes, scores, frame_num)
+        tracks = iou_tracker.track(boxes, scores, frame_num)
 
-        # draw
+        # draw detections
         for box, label in zip(boxes, labels):
-            plot_one_box(
-                frame, box, yolov3.classes[label],
-                color=yolov3.color_table[label], line_thickness=None)
+            x1, y1, x2, y2 = map(int, box)
+            cv.rectangle(frame, (x1,y1), (x2,y2), (0,0,255), 3)
 
             cv.putText(
-                frame, "FPS: {:.02f}".format(fps),
-                (30, 30), cv.FONT_HERSHEY_SIMPLEX, 0.75, (0,0,255), 1)
+                frame, "FPS: {:.02f}".format(fps), (30, 30), 
+                cv.FONT_HERSHEY_SIMPLEX, 0.5, (0,0,255), 2)
 
-        for id_, track in enumerate(tracks_active):
+        # draw tracking
+        for id_, track in enumerate(tracks):
+            color = create_unique_color_uchar(id_)
+            # box
             x1, y1, x2, y2 = map(int, track['bboxes'][-1])
+            cv.rectangle(frame, (x1,y1), (x2,y2), color, 2)
+
+            # id_
+            text_size = cv.getTextSize(str(id_), cv.FONT_HERSHEY_SIMPLEX, 0.5, 1)
+            center = x1 + 5, y1 + 5 + text_size[0][1]
+            x2, y2 = x1 + 10 + text_size[0][0], y1 + 10 + text_size[0][1]
+
+            cv.rectangle(frame, (x1,y1), (x2,y2), color, -1)
             cv.putText(
-                frame, str(id_),
-                (x1,y1+20), cv.FONT_HERSHEY_SIMPLEX, 0.75, (0,0,255), 1)
+                frame, str(id_), center, 
+                cv.FONT_HERSHEY_SIMPLEX, 0.5, (255,255,255), 1)
+
+            pprint(track)
+            print(len(track['bboxes']))
+
+        print('frame_num', frame_num)
+        for i, (box, score, label) in enumerate(zip(boxes, scores, labels)):
+            print(i, yolov3.classes[label], score, box)
+        print()
 
         # show
         cv.imshow('Babysister', frame)
         if cv.waitKey(1) & 0xFF == ord('q'):
             break
-
-        # pprint(tracks_active)
-        for i, (box, score, label) in enumerate(zip(boxes, scores, labels)):
-            print(i, yolov3.classes[label], score, box)
-        print()
 
         # fps
         counter += 1

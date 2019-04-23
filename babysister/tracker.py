@@ -1,90 +1,71 @@
-"""Wraper for objects tracking algorithms
-cite:
+"""Simple online multiple objects tracker powered by OpenCV
 """
+import collections
+import cv2 as cv
 from pprint import pprint
-from .utils import iou
 
 
-class IOUtracker():
-    """Simple IOU based tracker.
-    See "High-Speed Tracking-by-Detection Without Using Image Information by E. Bochinski, V. Eiselein, T. Sikora" for
-    more information.
-    """
-    def __init__(self, sigma_l=0, sigma_h=0.5, sigma_iou=0.5, t_min=2):
-        """
-        Args:
-            sigma_l (float): low detection threshold.
-            sigma_h (float): high detection threshold.
-            sigma_iou (float): IOU threshold.
-            t_min (float): minimum track length in frames.
-        """
-        self.sigma_l = sigma_l
-        self.sigma_h = sigma_h
-        self.sigma_iou = sigma_iou
-        self.t_min = t_min
+class NaiveTracker:
+    trackers = {
+        'BOOSTING': cv.TrackerBoosting_create,
+        'MIL': cv.TrackerMIL_create,
+        'KCF': cv.TrackerKCF_create,
+        'TLD': cv.TrackerTLD_create,
+        'MEDIANFLOW': cv.TrackerMedianFlow_create,
+        'GOTURN': cv.TrackerGOTURN_create,
+        'MOSSE': cv.TrackerMOSSE_create,
+        'CSRT': cv.TrackerCSRT_create
+    }
 
-        self.tracks_active = []
-        self.tracks_finished = []
+    def __init__(self, tracker_name='CSRT', max_disappeared=50):
+        if tracker_name not in self.trackers.keys():
+            print('Incorrect tracker name')
+            print('Available trackers are:')
+            print('\n'.join(list(self.trackers.keys())))
+        
+        # tracker for each object
+        self.tracker_name = tracker_name
+        
+        # all objects that being tracked
+        self.next_id = 0
+        self.objects = collections.OrderedDict()
+        self.max_disappeared = max_disappeared
 
-    def gen_detections(self, boxes, scores):
-        """Generate detections to use with IOU based tracker
-        [
-            {'bbox': (x1,y1,x2,y2), 'score': score},
-            ...
-        ]
-        """
-        return [
-            {'bbox': tuple(box), 'score': score}
-            for box, score in zip(boxes, scores)
-        ]
-
-    def track(self, boxes, scores, frame_num):
-        detections = self.gen_detections(boxes, scores)
-
-        # apply low threshold to detections
-        dets = [det for det in detections if det['score'] >= self.sigma_l]
-
-        updated_tracks = []
-        for track in self.tracks_active:
-            if len(dets) > 0:
-                # get det with highest iou
-                best_match = \
-                    max(dets, key=lambda x: iou(track['bboxes'][-1], x['bbox']))
-
-                if iou(track['bboxes'][-1], best_match['bbox']) >= self.sigma_iou:
-                    track['bboxes'].append(best_match['bbox'])
-                    track['max_score'] = \
-                        max(track['max_score'], best_match['score'])
-
-                    updated_tracks.append(track)
-
-                    # remove from best matching detection from detections
-                    del dets[dets.index(best_match)]
-
-            # if track was not updated
-            if len(updated_tracks) == 0 or track is not updated_tracks[-1]:
-                # finish track when the conditions are met
-                if track['max_score'] >= self.sigma_h \
-                and len(track['bboxes']) >= self.t_min:
-                    self.tracks_finished.append(track)
-
-        # create new tracks
-        new_tracks = [
-            {
-                'bboxes': [det['bbox']],
-                'max_score': det['score'],
-                'start_frame': frame_num
+    def register(self, frame, boxes):
+        """Register new objects"""
+        for box in boxes:
+            self.objects[self.next_id] = {
+                'tracker': self.trackers[self.tracker_name]().init(frame, box),
+                'box': box,
+                'disappeared': 0
             }
-            for det in dets
-        ]
-        self.tracks_active = updated_tracks + new_tracks
+            self.next_id += 1
 
-        return self.tracks_active
+    def deregister(self, id_):
+        del self.objects[id_]
 
-    def finish_track(self):
-        """finish all remaining active tracks"""
-        self.tracks_finished += [
-            track for track in self.tracks_active
-            if track['max_score'] >= self.sigma_h and len(track['bboxes']) >= self.t_min]
+    def update(self, frame, detected_boxes):
+        # update all objects that being tracked
+        ids = self.objects.keys()
+        for id_ in ids:
+            ok, box = self.objects[id_]['tracker'].update(frame)
 
-        return self.tracks_finished
+            if ok:
+                self.objects[id_]['box'] = box
+                self.objects[id_]['disappeared'] = 0
+            else:
+                self.objects[id_]['box'] = ()
+                self.objects[id_]['disappeared'] += 1
+                if self.objects[id_]['disappeared'] > max_disappeared:
+                    self.deregister(id_)
+
+        for detected_box in detected_boxes:
+            for id_, obj in 
+
+
+
+
+    
+    
+    
+
