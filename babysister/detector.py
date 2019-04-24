@@ -5,8 +5,7 @@ import tensorflow as tf
 
 from .YOLOv3_TensorFlow.utils.misc_utils import parse_anchors, read_class_names
 from .YOLOv3_TensorFlow.utils.nms_utils import gpu_nms
-from .YOLOv3_TensorFlow.utils.plot_utils import get_color_table, plot_one_box
-from .YOLOv3_TensorFlow import model
+from .YOLOv3_TensorFlow.model import yolov3
 
 
 class YOLOv3:
@@ -19,7 +18,6 @@ class YOLOv3:
         self.anchors = parse_anchors(self.anchor_path)
         self.classes = read_class_names(self.class_name_path)
         self.num_class = len(self.classes)
-        self.color_table = get_color_table(self.num_class)
 
         self.sess = self.get_sess()
 
@@ -30,7 +28,7 @@ class YOLOv3:
             self.input_data = tf.placeholder(
                 tf.float32, (None,*self.input_size,3), 'input_data')
 
-            yolo_model = model.yolov3(self.num_class, self.anchors)
+            yolo_model = yolov3(self.num_class, self.anchors)
             with tf.variable_scope('yolov3'):
                 pred_feature_maps = yolo_model.forward(self.input_data, False)
 

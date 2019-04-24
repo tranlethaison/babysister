@@ -9,14 +9,14 @@ import sys
 import tensorflow as tf
 import numpy as np
 
-from model import yolov3
-from utils.misc_utils import parse_anchors, load_weights
+from babysister.YOLOv3_TensorFlow.model import yolov3
+from babysister.YOLOv3_TensorFlow.utils.misc_utils import parse_anchors, load_weights
 
 num_class = 80
 img_size = 416
-weight_path = './data/darknet_weights/yolov3.weights'
-save_path = './data/darknet_weights/yolov3.ckpt'
-anchors = parse_anchors('./data/yolo_anchors.txt')
+weight_path = 'babysister/YOLOv3_TensorFlow/data/darknet_weights/yolov3.weights'
+save_path = 'babysister/YOLOv3_TensorFlow/data/darknet_weights/yolov3.ckpt'
+anchors = parse_anchors('babysister/YOLOv3_TensorFlow/data/yolo_anchors.txt')
 
 model = yolov3(80, anchors)
 with tf.Session() as sess:
@@ -31,6 +31,3 @@ with tf.Session() as sess:
     sess.run(load_ops)
     saver.save(sess, save_path=save_path)
     print('TensorFlow model checkpoint has been saved to {}'.format(save_path))
-
-
-
