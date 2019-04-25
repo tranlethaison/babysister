@@ -13,7 +13,7 @@ from babysister.utils import create_unique_color_uchar, putText_withBackGround
 
 def run(
     frames_dir, input_size=(416,416),
-    max_boxes=100, score_thresh=0.5, iou_thresh=0.5,
+    max_boxes=100, score_thresh=0.5, iou_thresh=0.5, max_size_ratio=(0.5,0.5),
     save_dir=None, do_show=True
 ):
     # Save prepare
@@ -49,8 +49,9 @@ def run(
 
     # Visulization stuff
     fontFace = cv.FONT_HERSHEY_SIMPLEX
-    fontScale = 0.5
+    fontScale = 0.35
     fontThickness = 1
+    boxThickness = 1
     if do_show:
         winname = 'Babysister. Input size {}'.format(input_size)
         cv.namedWindow(winname)
@@ -82,7 +83,7 @@ def run(
         # detect
         boxes, scores, labels = yolov3.detect(input_data)
 
-        # filter
+        # filter by class
         tmp_boxes, tmp_scores, tmp_labels = [], [], []
         for box, score, label in zip(boxes, scores, labels):
             if yolov3.classes[label] == 'person':
@@ -92,29 +93,47 @@ def run(
         boxes, scores, labels = np.array(tmp_boxes), tmp_scores, tmp_labels
 
         # rescale boxes
+        frame_h, frame_w = frame.shape[:2]
         if boxes.shape[0] > 0:
-            size_ratio = np.divide(frame.shape[:2], input_size)
-            boxes[:,0] *= size_ratio[1]
-            boxes[:,1] *= size_ratio[0]
-            boxes[:,2] *= size_ratio[1]
-            boxes[:,3] *= size_ratio[0]
+            size_ratio = np.divide([frame_w, frame_h], input_size)
+            boxes[:,0] *= size_ratio[0]
+            boxes[:,1] *= size_ratio[1]
+            boxes[:,2] *= size_ratio[0]
+            boxes[:,3] *= size_ratio[1]
+
+        #filter by box size wrt image size.
+        if np.greater([1,1], max_size_ratio).any():
+            tmp_boxes, tmp_scores, tmp_labels = [], [], []
+
+            for box, score, label in zip(boxes, scores, labels):
+                x1, y1, x2, y2 = box
+                size_ratio = np.divide([x2-x1,y2-y1], [frame_w, frame_h])
+
+                if np.greater(size_ratio, max_size_ratio).any():
+                    continue
+
+                tmp_boxes.append(box)
+                tmp_scores.append(score)
+                tmp_labels.append(label)
+
+            boxes, scores, labels = np.array(tmp_boxes), tmp_scores, tmp_labels
 
         # track
         tracks = tracker.update(boxes, scores)
 
         # draw fps, counts
-        frame[:95, :225, 1] = 255
+        frame[:95, :150, 1] = 255
 
         str_fps = "FPS: {:.02f}".format(fps)
         str_peoples = "Peoples being...\n detected: {}\n tracked:  {}" \
             .format(len(labels), len(tracks))
 
         cv.putText(
-            frame, str_fps, (5, 25), fontFace, 0.75, (0,0,0), fontThickness)
+            frame, str_fps, (5, 25), fontFace, 0.5, (0,0,0), fontThickness)
 
         for i, line in enumerate(str_peoples.split('\n')):
             cv.putText(
-                frame, line, (5, 45 + i * 20), fontFace, 0.75, (0,0,0), fontThickness)
+                frame, line, (5, 45 + i * 20), fontFace, 0.5, (0,0,0), fontThickness)
 
         print(str_fps)
         print(str_peoples)
@@ -125,7 +144,7 @@ def run(
             color = (0,0,255)
             # box
             x1, y1, x2, y2 = map(int, box)
-            cv.rectangle(frame, (x1,y1), (x2,y2), color, 2)
+            cv.rectangle(frame, (x1,y1), (x2,y2), color, boxThickness)
 
             # score
             putText_withBackGround(
@@ -142,7 +161,7 @@ def run(
 
             # box
             x1, y1, x2, y2 = map(int, track[0:4])
-            cv.rectangle(frame, (x1,y1), (x2,y2), color, 2)
+            cv.rectangle(frame, (x1,y1), (x2,y2), color, boxThickness)
 
             # id_
             putText_withBackGround(
