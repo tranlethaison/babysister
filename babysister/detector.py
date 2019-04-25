@@ -1,5 +1,4 @@
-"""Wraper for objects detection algorithms
-cite:
+"""Wraper for YOLOv3_TensorFlow
 """
 import tensorflow as tf
 
@@ -9,11 +8,18 @@ from .YOLOv3_TensorFlow.model import yolov3
 
 
 class YOLOv3:
-    def __init__(self, input_size, anchor_path, class_name_path, restore_path):
+    def __init__(
+        self, input_size, anchor_path, class_name_path, restore_path,
+        max_boxes=30, score_thresh=0.5, iou_thresh=0.5
+    ):
         self.input_size = input_size or (608, 608)
         self.anchor_path = anchor_path
         self.class_name_path = class_name_path
         self.restore_path = restore_path
+
+        self.max_boxes = max_boxes
+        self.score_thresh = score_thresh
+        self.iou_thresh = iou_thresh
 
         self.anchors = parse_anchors(self.anchor_path)
         self.classes = read_class_names(self.class_name_path)
@@ -40,10 +46,10 @@ class YOLOv3:
             self.boxes, self.scores, self.labels = \
                 gpu_nms(
                     pred_boxes, pred_scores, self.num_class,
-                    max_boxes=30, score_thresh=0.5, iou_thresh=0.5)
+                    self.max_boxes, self.score_thresh, self.iou_thresh)
 
             saver = tf.train.Saver()
-        
+
         sess = tf.Session(graph=g)
         saver.restore(sess, self.restore_path)
         return sess
@@ -53,7 +59,7 @@ class YOLOv3:
 
     def detect(self, input_data):
         return self.sess.run(
-            [self.boxes, self.scores, self.labels], 
+            [self.boxes, self.scores, self.labels],
             feed_dict={self.input_data: self.preprocess(input_data)})
 
 
@@ -89,7 +95,7 @@ if __name__ == '__main__':
 
     for box, label in zip(boxes, labels):
         plot_one_box(
-            img, box, yolov3.classes[label], 
+            img, box, yolov3.classes[label],
             color=yolov3.color_table[label], line_thickness=None)
 
     cv.imshow('YOLO v3', img)

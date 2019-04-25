@@ -1,4 +1,5 @@
 import colorsys
+import cv2 as cv
 
 
 def iou(bbox1, bbox2):
@@ -85,4 +86,17 @@ def create_unique_color_uchar(tag, hue_step=0.41):
     """
     r, g, b = create_unique_color_float(tag, hue_step)
     return int(255*r), int(255*g), int(255*b)
-    
+
+
+def putText_withBackGround(img, text, top_right, fontFace, fontScale, fontThickness, color):
+    """Put text in white, with a 'color' background
+    """
+    text_size = cv.getTextSize(text, fontFace, fontScale, fontThickness)
+
+    x1, y1 = top_right
+    center = x1 + 5, y1 + 5 + text_size[0][1]
+    x2, y2 = x1 + 10 + text_size[0][0], y1 + 10 + text_size[0][1]
+
+    cv.rectangle(img, (x1,y1), (x2,y2), color, -1)
+    cv.putText(
+        img, text, center, fontFace, fontScale, (255,255,255), fontThickness)

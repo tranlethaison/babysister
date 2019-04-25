@@ -105,7 +105,7 @@ class yolov3(object):
         # shape: [13, 13, 1, 2]
         x_y_offset = tf.cast(tf.reshape(x_y_offset, [grid_size[0], grid_size[1], 1, 2]), tf.float32)
 
-        # get the absolute box coordinates on the feature_map 
+        # get the absolute box coordinates on the feature_map
         box_centers = box_centers + x_y_offset
         # rescale to the original image scale
         box_centers = box_centers * ratio[::-1]
@@ -159,7 +159,7 @@ class yolov3(object):
             boxes_list.append(boxes)
             confs_list.append(confs)
             probs_list.append(probs)
-        
+
         # collect results on three scales
         # take 416*416 input image for example:
         # shape: [N, (13*13+26*26+52*52)*3, 4]
@@ -178,12 +178,12 @@ class yolov3(object):
         boxes = tf.concat([x_min, y_min, x_max, y_max], axis=-1)
 
         return boxes, confs, probs
-    
+
     def loss_layer(self, feature_map_i, y_true, anchors):
         '''
         calc loss function from a certain scale
         '''
-        
+
         # size in [h, w] format! don't get messed up!
         grid_size = tf.shape(feature_map_i)[1:3]
         # the downscale ratio in height and weight
@@ -241,7 +241,7 @@ class yolov3(object):
         true_tw_th = tf.log(tf.clip_by_value(true_tw_th, 1e-9, 1e9))
         pred_tw_th = tf.log(tf.clip_by_value(pred_tw_th, 1e-9, 1e9))
 
-        # box size punishment: 
+        # box size punishment:
         # box with smaller area has bigger weight. This is taken from the yolo darknet C source code.
         # shape: [N, 13, 13, 3, 1]
         box_loss_scale = 2. - (y_true[..., 2:3] / tf.cast(self.img_size[1], tf.float32)) * (y_true[..., 3:4] / tf.cast(self.img_size[0], tf.float32))
@@ -266,7 +266,7 @@ class yolov3(object):
 
         return xy_loss, wh_loss, conf_loss, class_loss
 
-    
+
     def compute_loss(self, y_pred, y_true):
         '''
         param:

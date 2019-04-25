@@ -105,7 +105,7 @@ def cpu_nms(boxes, scores, num_classes, max_boxes=50, score_thresh=0.5, iou_thre
         indices = np.where(scores[:,i] >= score_thresh)
         filter_boxes = boxes[indices]
         filter_scores = scores[:,i][indices]
-        if len(filter_boxes) == 0: 
+        if len(filter_boxes) == 0:
             continue
         # do non_max_suppression on the cpu
         indices = py_nms(filter_boxes, filter_scores,
@@ -113,7 +113,7 @@ def cpu_nms(boxes, scores, num_classes, max_boxes=50, score_thresh=0.5, iou_thre
         picked_boxes.append(filter_boxes[indices])
         picked_score.append(filter_scores[indices])
         picked_label.append(np.ones(len(indices), dtype='int32')*i)
-    if len(picked_boxes) == 0: 
+    if len(picked_boxes) == 0:
         return None, None, None
 
     boxes = np.concatenate(picked_boxes, axis=0)
