@@ -31,39 +31,44 @@ You can also download the converted TensorFlow checkpoint file via [[Google Driv
 python demo.py help
 ```
 ```text
+Peoples detection and online tracking.
+
 Usage:
     demo.py run FRAMES_DIR [INPUT_SIZE] [MAX_BOXES] [SCORE_THRESH] [IOU_THRESH] [SAVE_DIR] [DO_SHOW]
 
-    demo.py run --frames-dir FRAMES_DIR [--input-size INPUT_SIZE] 
-                [--max-boxes MAX_BOXES] [--score-thresh SCORE_THRESH] [--iou-thresh IOU_THRESH] 
+    demo.py run --frames-dir FRAMES_DIR [--input-size INPUT_SIZE]
+                [--max-boxes MAX_BOXES] [--score-thresh SCORE_THRESH] [--iou-thresh IOU_THRESH]
                 [--save-dir SAVE_DIR] [--do-show DO_SHOW]
 
 Descriptions:
-    --frames-dir
+    --frames-dir <string>
         Directory that contain sequences of frames (jpeg).
 
-    --input-size
+    --input-size <tuple>
         YOLOv3 input size.
         Default: '(416,416)'
 
-    --max-boxes
+    --max-boxes <integer.
         maximum number of predicted boxes you'd like.
         Default: 100
 
-    --score-thresh
+    --score-thresh <float, in [0, 1]>
         if [ highest class probability score < score threshold]
             then get rid of the corresponding boxes
         Default: 0.5
 
-    --iou-thresh
+    --iou-thresh <float, in [0, 1]>
         "intersection over union" threshold used for NMS filtering.
         Default: 0.5
 
-    --save-dir
+    --max_size_ratio [tuple, member in [0, 1]]
+        Boxes maximum size ratio wrt frame size.
+
+    --save-dir <string>
         Directory to save result images.
         Default: not to save
 
-    --do-show
+    --do-show <boolean>
         Whether to display result.
         Default: True
 ```
