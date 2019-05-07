@@ -12,19 +12,24 @@ from babysister.utils import create_unique_color_uchar, putText_withBackGround
 
 
 def run(
-    frames_dir, input_size=[416,416],
+    video_path, input_size=[416,416],
     classes=['all'],
     max_boxes=100, score_thresh=0.5, iou_thresh=0.5, max_bb_size_ratio=[1,1],
-    save_to=None, do_show=True
+    save_to=None, fourcc='XVID', do_show=True
 ):
-    # Frames sequence
-    frames_path = sorted(glob.glob(frames_dir + '/*.jpg'))
-    assert len(frames_path) > 0
+    # Capture
+    cap = cv.VideoCapture(video_path)
+    assert cap.isOpened()
+    # cap_fourcc = int(cap.get(cv.CAP_PROP_FOURCC)) # may not work if codec is not supported.
+    cap_fourcc = cv.VideoWriter_fourcc(*fourcc)
+    cap_fps = cap.get(cv.CAP_PROP_FPS)
+    cap_width = int(cap.get(cv.CAP_PROP_FRAME_WIDTH))
+    cap_height = int(cap.get(cv.CAP_PROP_FRAME_HEIGHT))
 
     # Save prepare
     if save_to:
-        if os.path.isdir(save_to):
-            print('Save directory already exist. Replace it? y/N')
+        if os.path.isfile(save_to):
+            print('{} already exist. Replace it? y/N'.format(save_to))
             do_replace = input() or 'n'
             if do_replace.lower() == 'n':
                print("k, bye.")
@@ -34,8 +39,9 @@ def run(
             else:
                 print("You should type 'y' or 'n'.")
                 exit(0)
-        else:
-            os.makedirs(save_to)
+
+        out = cv.VideoWriter()
+        out.open(save_to, cap_fourcc, cap_fps, (cap_width, cap_height))
 
     # Detector
     anchor_path="babysister/YOLOv3_TensorFlow/data/yolo_anchors.txt"
@@ -60,11 +66,11 @@ def run(
         cv.waitKey(1)
 
     # info
-    print('Processing {} images from {}'.format(len(frames_path), frames_dir))
+    print('Processing {}'.format(video_path))
     print('YOLOv3 input size {}'.format(input_size))
     print('Max boxes: {}\nScore threshold: {}\nIOU threshold: {}'
         .format(max_boxes, score_thresh, iou_thresh))
-    print('Result images will be saved to {}\n'.format(save_to))
+    print('Result will be saved to {}\n'.format(save_to))
 
     # fps
     start_time = time.time()
@@ -72,13 +78,22 @@ def run(
     counter = 0
     fps = 0
 
-    for frame_num, frame_path in enumerate(frames_path):
+    while cap.isOpened():
         # Frame info
-        frame_info = "{}\nFrame: {}".format(frame_path, frame_num)
+        pos_frames = int(cap.get(cv.CAP_PROP_POS_FRAMES))
+        pos_msec = cap.get(cv.CAP_PROP_POS_MSEC)
+        pos_S = int((pos_msec / 1000) % 60)
+        pos_M = int((pos_msec / (1000 * 60)) % 60)
+        pos_H = int((pos_msec / (1000 * 60 * 60)) % 24)
+        pos_time = "{}:{}:{}".format(pos_H, pos_M, pos_S)
+        frame_info = "{}\nFrame: {}".format(pos_time, pos_frames)
         print(frame_info)
 
-        # Read
-        frame = cv.imread(frame_path, cv.IMREAD_COLOR)
+        # Read capture
+        ret, frame = cap.read()
+        if not ret:
+            print("Can't receive frame (stream end?). Exiting ...")
+            break
 
         # input data
         input_data = cv.resize(frame, dsize=tuple(input_size), interpolation=cv.INTER_LANCZOS4)
@@ -191,9 +206,8 @@ def run(
 
         # save
         if save_to:
-            _, frame_name = os.path.split(frame_path)
-            result_frame_path = os.path.join(save_to, frame_name)
-            cv.imwrite(result_frame_path, frame)
+            assert [frame_w, frame_h] == [cap_width, cap_height]
+            out.write(frame)
 
         # show
         if do_show:
@@ -210,6 +224,8 @@ def run(
 
         print(flush=True)
 
+    cap.release()
+    out.release()
     if do_show:
         cv.destroyAllWindows()
 
@@ -219,17 +235,17 @@ def help():
 Objects detection and online tracking.
 
 Usage:
-    demo.py run FRAMES_DIR [INPUT_SIZE] [CLASSES]
+    demo_video.py run VIDEO_PATH [INPUT_SIZE] [CLASSES]
                     [MAX_BOXES] [SCORE_THRESH] [IOU_THRESH] [MAX_BB_SIZE_RATIO]
-                    [SAVE_TO] [DO_SHOW]
+                    [SAVE_TO] [FOURCC] [DO_SHOW]
 
-    demo.py run --frames-dir FRAMES_DIR [--input-size INPUT_SIZE] [--classes CLASSES]
+    demo_video.py run --video-path VIDEO_PATH [--input-size INPUT_SIZE] [--classes CLASSES]
                 [--max-boxes MAX_BOXES] [--score-thresh SCORE_THRESH] [--iou-thresh IOU_THRESH] [--max-bb-size-ratio MAX_BB_SIZE_RATIO]
-                [--save-to SAVE_TO] [--do-show DO_SHOW]
+                [--save-to SAVE_TO] [--fourcc FOURCC] [--do-show DO_SHOW]
 
 Descriptions:
-    --frames-dir <string>
-        Directory that contain sequences of frames (jpeg).
+    --video-path <string>
+        Path to input video.q
 
     --input-size <2-tuple>
         YOLOv3 input size.
@@ -259,6 +275,11 @@ Descriptions:
     --save-to <string>
         Directory to save result images.
         Default: not to save
+
+    --fourcc <4-string>
+        FOURCC is short for "four character code"
+        - an identifier for a video codec, compression format, color or pixel format used in media files.
+        Default: "XVID"
 
     --do-show <boolean, or integer in [0, 1]>
         Whether to display result.

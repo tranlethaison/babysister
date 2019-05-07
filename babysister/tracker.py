@@ -1,4 +1,4 @@
-"""Wraper for SORT
+"""Wrapper for SORT
 @inproceedings{Bewley2016_sort,
   author={Bewley, Alex and Ge, Zongyuan and Ott, Lionel and Ramos, Fabio and Upcroft, Ben},
   booktitle={2016 IEEE International Conference on Image Processing (ICIP)},

@@ -1,4 +1,4 @@
-"""Wraper for YOLOv3_TensorFlow
+"""Wrapper for YOLOv3_TensorFlow
 """
 import tensorflow as tf
 
