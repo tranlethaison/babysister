@@ -15,7 +15,7 @@ def run(
     video_path, input_size=[416,416],
     classes=['all'],
     max_boxes=100, score_thresh=0.5, iou_thresh=0.5, max_bb_size_ratio=[1,1],
-    save_to=None, fourcc='XVID', do_show=True
+    save_to=None, fourcc='XVID', do_show=True, do_show_class=True
 ):
     # Capture
     cap = cv.VideoCapture(video_path)
@@ -48,7 +48,7 @@ def run(
     class_name_path="babysister/YOLOv3_TensorFlow/data/coco.names"
     restore_path="babysister/YOLOv3_TensorFlow/data/darknet_weights/yolov3.ckpt"
     yolov3 = YOLOv3(
-        input_size, anchor_path, class_name_path, restore_path,
+        reversed(input_size), anchor_path, class_name_path, restore_path,
         max_boxes, score_thresh, iou_thresh)
 
     # Online multiple objects tracker
@@ -62,7 +62,7 @@ def run(
     if do_show:
         winname = 'Babysister. Input size {}'.format(input_size)
         cv.namedWindow(winname)
-        cv.moveWindow(winname, 0, 0)
+        # cv.moveWindow(winname, 0, 0)
         cv.waitKey(1)
 
     # info
@@ -85,7 +85,7 @@ def run(
         pos_S = int((pos_msec / 1000) % 60)
         pos_M = int((pos_msec / (1000 * 60)) % 60)
         pos_H = int((pos_msec / (1000 * 60 * 60)) % 24)
-        pos_time = "{}:{}:{}".format(pos_H, pos_M, pos_S)
+        pos_time = "{:02d}:{:02d}:{:02d}".format(pos_H, pos_M, pos_S)
         frame_info = "{}\nFrame: {}".format(pos_time, pos_frames)
         print(frame_info)
 
@@ -96,7 +96,8 @@ def run(
             break
 
         # input data
-        input_data = cv.resize(frame, dsize=tuple(input_size), interpolation=cv.INTER_LANCZOS4)
+        input_data = cv.resize(
+            frame, dsize=tuple(input_size), interpolation=cv.INTER_LANCZOS4)
         input_data = cv.cvtColor(input_data, cv.COLOR_BGR2RGB)
         input_data = np.expand_dims(input_data, axis=0).astype(np.float32)
 
@@ -144,31 +145,30 @@ def run(
 
         # putText
         frame[:120, :150, 1] = 255
-        print_x, print_y = 5, 25
-        print_line_gap = 20
+        text_x, text_y = 5, 25
+        text_line_gap = 20
 
         # frame_info
         for i, line in enumerate(frame_info.split("\n")):
-            print_y += i * print_line_gap
-            cv.putText(frame, line, (print_x, print_y), fontFace, 0.5, (0,0,0), fontThickness)
+            text_y += i * text_line_gap
+            cv.putText(frame, line, (text_x, text_y), fontFace, 0.5, (0,0,0), fontThickness)
 
         # fps
         str_fps = "FPS: {:.02f}".format(fps)
-        print_y += print_line_gap
-        cv.putText(frame, str_fps, (print_x, print_y), fontFace, 0.5, (0,0,0), fontThickness)
+        text_y += text_line_gap
+        cv.putText(frame, str_fps, (text_x, text_y), fontFace, 0.5, (0,0,0), fontThickness)
+        print(str_fps)
 
         # counts
         str_counts = "Detected: {}\nTracked:  {}".format(len(labels), len(tracks))
-        print_y += print_line_gap
+        text_y += text_line_gap
         for i, line in enumerate(str_counts.split('\n')):
-            print_y += i * print_line_gap
-            cv.putText(frame, line, (print_x, print_y), fontFace, 0.5, (0,0,0), fontThickness)
-
-        print(str_fps)
+            text_y += i * text_line_gap
+            cv.putText(frame, line, (text_x, text_y), fontFace, 0.5, (0,0,0), fontThickness)
         print(str_counts)
 
         # draw detections
-        print('Detections:\n\tBox\tScore\tClass')
+        print('Detections:\n\tClass\tScore\tBox')
         for box, score, label in zip(boxes, scores, labels):
             color = create_unique_color_uchar(label) # (0,0,255)
 
@@ -176,15 +176,16 @@ def run(
             x1, y1, x2, y2 = map(int, box)
             cv.rectangle(frame, (x1,y1), (x2,y2), color, boxThickness)
 
-            # score
-            putText_withBackGround(
-                frame, '{:.02f}'.format(score),
-                (x1,y1-20), fontFace, fontScale, fontThickness, color)
+            if do_show_class:
+                # score
+                putText_withBackGround(
+                    frame, '{:.02f}'.format(score),
+                    (x1,y1-20), fontFace, fontScale, fontThickness, color)
 
-            # class
-            putText_withBackGround(
-                frame, yolov3.classes[label],
-                (x1+40,y1-20), fontFace, fontScale, fontThickness, color)
+                # class
+                putText_withBackGround(
+                    frame, yolov3.classes[label],
+                    (x1+40,y1-20), fontFace, fontScale, fontThickness, color)
 
             print('\t{}\t{}\t{}'.format(yolov3.classes[label], score, box))
 
@@ -225,7 +226,10 @@ def run(
         print(flush=True)
 
     cap.release()
-    out.release()
+
+    if save_to:
+        out.release()
+
     if do_show:
         cv.destroyAllWindows()
 
@@ -237,11 +241,11 @@ Objects detection and online tracking.
 Usage:
     demo_video.py run VIDEO_PATH [INPUT_SIZE] [CLASSES]
                     [MAX_BOXES] [SCORE_THRESH] [IOU_THRESH] [MAX_BB_SIZE_RATIO]
-                    [SAVE_TO] [FOURCC] [DO_SHOW]
+                    [SAVE_TO] [FOURCC] [DO_SHOW] [DO_SHOW_CLASS]
 
     demo_video.py run --video-path VIDEO_PATH [--input-size INPUT_SIZE] [--classes CLASSES]
                 [--max-boxes MAX_BOXES] [--score-thresh SCORE_THRESH] [--iou-thresh IOU_THRESH] [--max-bb-size-ratio MAX_BB_SIZE_RATIO]
-                [--save-to SAVE_TO] [--fourcc FOURCC] [--do-show DO_SHOW]
+                [--save-to SAVE_TO] [--fourcc FOURCC] [--do-show DO_SHOW] [--do-show-class DO_SHOW_CLASS]
 
 Descriptions:
     --video-path <string>
@@ -268,7 +272,7 @@ Descriptions:
         "intersection over union" threshold used for NMS filtering.
         Default: 0.5
 
-    --max_bb_size_ratio <2-tuple, in range [0, 0] ~ [1, 1]>
+    --max-bb-size-ratio <2-tuple, in range [0, 0] ~ [1, 1]>
         Boxes maximum size ratio wrt frame size.
         Default: [1,1]
 
@@ -281,8 +285,12 @@ Descriptions:
         - an identifier for a video codec, compression format, color or pixel format used in media files.
         Default: "XVID"
 
-    --do-show <boolean, or integer in [0, 1]>
+    --do-show <boolean, or integer in range [0, 1]>
         Whether to display result.
+        Default: True (1)
+
+    --do-show-class <boolean, or integer in range [0, 1]>
+        Whether to display class, score.
         Default: True (1)
     """)
 
