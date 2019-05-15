@@ -151,10 +151,11 @@ Descriptions:
 ```
 
 ## Demo
+Download demo videos from [here](https://drive.google.com/drive/folders/1V5W7tBTlW9LoYb2HTenKWJp18eleh_TV?usp=sharing), place them in `demo` folder.
+
 ```shell
 $ python demo_video.py run demo/TownCentre_720p.mp4 --input-size [640,360] --save-to demo/TownCentre_720p_result.mp4
 ```
-<iframe src="https://drive.google.com/file/d/13lL6HqRMosglUnpPNZK3dBxS8Wbj4rhi/preview" width="640" height="480"></iframe>
 
 ## Credits
 Awesome works that made this tool possible.
