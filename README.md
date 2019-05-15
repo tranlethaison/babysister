@@ -104,12 +104,12 @@ $ python demo.py help
 Objects detection and online tracking.
 
 Usage:
-    demo.py run FRAMES_DIR [INPUT_SIZE] [CLASSES] 
-                    [MAX_BOXES] [SCORE_THRESH] [IOU_THRESH] [MAX_BB_SIZE_RATIO] 
+    demo.py run FRAMES_DIR [INPUT_SIZE] [CLASSES]
+                    [MAX_BOXES] [SCORE_THRESH] [IOU_THRESH] [MAX_BB_SIZE_RATIO]
                     [SAVE_TO] [DO_SHOW]
 
-    demo.py run --frames-dir FRAMES_DIR [--input-size INPUT_SIZE] [--classes CLASSES] 
-                [--max-boxes MAX_BOXES] [--score-thresh SCORE_THRESH] [--iou-thresh IOU_THRESH] [--max-bb-size-ratio MAX_BB_SIZE_RATIO] 
+    demo.py run --frames-dir FRAMES_DIR [--input-size INPUT_SIZE] [--classes CLASSES]
+                [--max-boxes MAX_BOXES] [--score-thresh SCORE_THRESH] [--iou-thresh IOU_THRESH] [--max-bb-size-ratio MAX_BB_SIZE_RATIO]
                 [--save-to SAVE_TO] [--do-show DO_SHOW]
 
 Descriptions:
@@ -151,6 +151,12 @@ Descriptions:
 ```
 
 ## Demo
+```shell
+$ python demo_video.py run demo/TownCentre_720p.mp4 --input-size [640,360] --save-to demo/TownCentre_720p_result.mp4
+```
+<video controls="controls">
+  <source type="video/mp4" src="demo/TownCentre_720p_result_x264.mp4"></source>
+</video>
 
 ## Credits
 Awesome works that made this tool possible.
