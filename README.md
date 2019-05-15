@@ -154,9 +154,7 @@ Descriptions:
 ```shell
 $ python demo_video.py run demo/TownCentre_720p.mp4 --input-size [640,360] --save-to demo/TownCentre_720p_result.mp4
 ```
-<video controls="controls">
-  <source type="video/mp4" src="demo/TownCentre_720p_result_x264.mp4"></source>
-</video>
+<iframe src="https://drive.google.com/file/d/13lL6HqRMosglUnpPNZK3dBxS8Wbj4rhi/preview" width="640" height="480"></iframe>
 
 ## Credits
 Awesome works that made this tool possible.
