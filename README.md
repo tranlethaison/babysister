@@ -1,21 +1,21 @@
 # Babysister
 
 - [Babysister](#babysister)
-    - [1. Introduction](#1-introduction)
-    - [2. Requirements](#2-requirements)
-    - [3. Weights convertion](#3-weights-convertion)
-    - [4. Usage](#4-usage)
-      - [4.1 Usage for video](#41-usage-for-video)
-      - [4.2 Usage for sequences of frames](#42-usage-for-sequences-of-frames)
-    - [5. Demo](#5-demo)
-    - [6. Credits](#6-credits)
+  - [Introduction](#introduction)
+  - [Environment](#environment)
+  - [Weights convertion](#weights-convertion)
+  - [Usage](#usage)
+    - [For video](#for-video)
+    - [For sequence of frames](#for-sequence-of-frames)
+  - [Demo](#demo)
+  - [Credits](#credits)
 
-### 1. Introduction
+## Introduction
 Objects detection and online tracking.
 
-### 2. Requirements
+## Environment
 ```text
-python=3
+python==3
 tensorflow >= 1.8.0 (lower versions may work too)
 opencv-python
 scikit-learn
@@ -25,21 +25,21 @@ scipy
 numba
 ```
 
-### 3. Weights convertion
+## Weights convertion
 The pretrained darknet weights file can be downloaded [here](https://pjreddie.com/media/files/yolov3.weights). Place this weights file under directory `babysister/YOLOv3_TensorFlow/data/darknet_weights/` and then run:
 
 ```shell
-python convert_weight.py
+$ python convert_weight.py
 ```
 
 Then the converted TensorFlow checkpoint file will be saved to the same directory.
 
 You can also download the converted TensorFlow checkpoint file via [[Google Drive link](https://drive.google.com/drive/folders/1mXbNgNxyXPi7JNsnBaxEv1-nWr7SVoQt?usp=sharing)] or [[Github Release](https://github.com/wizyoung/YOLOv3_TensorFlow/releases/)]
 
-### 4. Usage
-#### 4.1 Usage for video
+## Usage
+### For video
 ```shell
-python demo_video.py help
+$ python demo_video.py help
 ```
 ```text
 Objects detection and online tracking.
@@ -96,9 +96,9 @@ Descriptions:
         Default: True (1)
 ```
 
-#### 4.2 Usage for sequences of frames
+### For sequence of frames
 ```shell
-python demo.py help
+$ python demo.py help
 ```
 ```text
 Objects detection and online tracking.
@@ -150,9 +150,9 @@ Descriptions:
         Default: True (1)
 ```
 
-### 5. Demo
+## Demo
 
-### 6. Credits
+## Credits
 Awesome works that made this tool possible.
 
 https://github.com/pjreddie/darknet
