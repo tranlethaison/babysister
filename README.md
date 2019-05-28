@@ -16,13 +16,15 @@ Objects detection and online tracking.
 ## Environment
 ```text
 python==3
-tensorflow >= 1.8.0 (lower versions may work too)
+tensorflow>=1.8.0
 opencv-python
+opencv-contrib-python
 scikit-learn
 scikit-image
 filterpy
 scipy
 numba
+fire
 ```
 
 ## Weights convertion
