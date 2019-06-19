@@ -25,11 +25,11 @@ class YOLOv3:
         self.classes = read_class_names(self.class_name_path)
         self.num_class = len(self.classes)
 
+        self.graph = tf.Graph() 
         self.sess = self.get_sess()
 
     def get_sess(self):
-        """Detection session"""
-        with tf.Graph().as_default() as g:
+        with self.graph.as_default():
             # YOLOv3 graph
             self.input_data = tf.placeholder(
                 tf.float32, (None,*self.input_size,3), 'input_data')
@@ -37,6 +37,7 @@ class YOLOv3:
             yolo_model = yolov3(self.num_class, self.anchors)
             with tf.variable_scope('yolov3'):
                 pred_feature_maps = yolo_model.forward(self.input_data, False)
+            #pred_feature_maps = yolo_model.forward(self.input_data, False)
 
             # predict
             pred_boxes, pred_confs, pred_probs = yolo_model.predict(pred_feature_maps)
@@ -49,10 +50,9 @@ class YOLOv3:
                     self.max_boxes, self.score_thresh, self.iou_thresh)
 
             saver = tf.train.Saver()
-
-        sess = tf.Session(graph=g)
-        saver.restore(sess, self.restore_path)
-        return sess
+            sess = tf.Session()
+            saver.restore(sess, self.restore_path)
+            return sess
 
     def preprocess(self, input_data):
         return input_data / 255.0
