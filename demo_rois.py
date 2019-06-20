@@ -1,10 +1,11 @@
 import os
 import glob
 import time
-import fire
+import threading
+
 import cv2 as cv
 import numpy as np
-from pprint import pprint
+import fire
 
 from babysister.detector import YOLOv3
 from babysister.tracker import SORTTracker
@@ -14,68 +15,62 @@ from babysister.utils import (
     FPSCounter)
 
 
-def detect_and_track(frame, rois, classes, max_bb_size_ratio):
+def detect_and_track(
+    frame, roi_value, 
+    input_size, detector, tracker,
+    classes, max_bb_size_ratio
+):
     '''
     '''
-    # detect and track result, each ROI will get it own
-    dt_results = [None] * len(rois['value'])
+    x, y, w, h = roi_value
+    roi = frame[y:y+h, x:x+w]
 
-    for roi_num, roi_value in enumerate(rois['value']):
-        # ROI data
-        x, y, w, h = roi_value
-        input_size = rois['input_sizes'][roi_num]
-        detector = rois['detectors'][roi_num]
-        tracker = rois['trackers'][roi_num]
-        roi = frame[y:y+h, x:x+w]
+    # input data
+    input_data = cv.resize(
+        roi, dsize=tuple(input_size), interpolation=cv.INTER_LANCZOS4)
+    input_data = cv.cvtColor(input_data, cv.COLOR_BGR2RGB)
+    input_data = np.expand_dims(input_data, axis=0).astype(np.float32)
 
-        # input data
-        input_data = cv.resize(
-            roi, dsize=tuple(input_size), interpolation=cv.INTER_LANCZOS4)
-        input_data = cv.cvtColor(input_data, cv.COLOR_BGR2RGB)
-        input_data = np.expand_dims(input_data, axis=0).astype(np.float32)
+    # detect
+    boxes, scores, labels = detector.detect(input_data)
 
-        # detect
-        boxes, scores, labels = detector.detect(input_data)
-
-        # filter by class
-        if 'all' not in classes:
-            tmp_boxes, tmp_scores, tmp_labels = [], [], []
-            for box, score, label in zip(boxes, scores, labels):
-                if detector.classes[label] in classes:
-                    tmp_boxes.append(box)
-                    tmp_scores.append(score)
-                    tmp_labels.append(label)
-            boxes, scores, labels = np.array(tmp_boxes), tmp_scores, tmp_labels
-
-        # rescale boxes
-        if boxes.shape[0] > 0:
-            size_ratio = np.divide([w, h], input_size)
-            boxes[:,0] *= size_ratio[0]
-            boxes[:,1] *= size_ratio[1]
-            boxes[:,2] *= size_ratio[0]
-            boxes[:,3] *= size_ratio[1]
-
-        #filter by box size wrt image size.
-        if np.greater([1,1], max_bb_size_ratio).any():
-            tmp_boxes, tmp_scores, tmp_labels = [], [], []
-            for box, score, label in zip(boxes, scores, labels):
-                x0, y0, x1, y1 = box
-                size_ratio = np.divide([x1-x0, y1-y0], [frame_w, frame_h])
-
-                if np.greater(size_ratio, max_bb_size_ratio).any():
-                    continue
-
+    # filter by class
+    if 'all' not in classes:
+        tmp_boxes, tmp_scores, tmp_labels = [], [], []
+        for box, score, label in zip(boxes, scores, labels):
+            if detector.classes[label] in classes:
                 tmp_boxes.append(box)
                 tmp_scores.append(score)
                 tmp_labels.append(label)
-            boxes, scores, labels = np.array(tmp_boxes), tmp_scores, tmp_labels
+        boxes, scores, labels = np.array(tmp_boxes), tmp_scores, tmp_labels
 
-        # track
-        tracks = tracker.update(boxes, scores)
+    # rescale boxes
+    if boxes.shape[0] > 0:
+        size_ratio = np.divide([w, h], input_size)
+        boxes[:,0] *= size_ratio[0]
+        boxes[:,1] *= size_ratio[1]
+        boxes[:,2] *= size_ratio[0]
+        boxes[:,3] *= size_ratio[1]
 
-        dt_results[roi_num] = [boxes, scores, labels], tracks
-    
-    return dt_results
+    #filter by box size wrt image size.
+    if np.greater([1,1], max_bb_size_ratio).any():
+        tmp_boxes, tmp_scores, tmp_labels = [], [], []
+        for box, score, label in zip(boxes, scores, labels):
+            x0, y0, x1, y1 = box
+            size_ratio = np.divide([x1-x0, y1-y0], [frame_w, frame_h])
+
+            if np.greater(size_ratio, max_bb_size_ratio).any():
+                continue
+
+            tmp_boxes.append(box)
+            tmp_scores.append(score)
+            tmp_labels.append(label)
+        boxes, scores, labels = np.array(tmp_boxes), tmp_scores, tmp_labels
+
+    # track
+    tracks = tracker.update(boxes, scores)
+
+    return [boxes, scores, labels], tracks
     
 
 def run(
@@ -166,7 +161,18 @@ def run(
         frame = cv.imread(frame_path, cv.IMREAD_COLOR)
 
         # Detect and track for each ROI
-        dt_results = detect_and_track(frame, rois, classes, max_bb_size_ratio)
+        dt_results = [None] * len(rois['value'])
+        for roi_num, roi_value in enumerate(rois['value']):
+            # ROI data
+            input_size = rois['input_sizes'][roi_num]
+            detector = rois['detectors'][roi_num]
+            tracker = rois['trackers'][roi_num]
+
+            dt_results[roi_num] = detect_and_track(
+                frame, roi_value, 
+                input_size, detector, tracker,
+                classes, max_bb_size_ratio
+            )
 
         # Drawing
         for roi_num, (roi_value, dt_result) \
