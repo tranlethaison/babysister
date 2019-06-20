@@ -8,7 +8,10 @@ from pprint import pprint
 
 from babysister.detector import YOLOv3
 from babysister.tracker import SORTTracker
-from babysister.utils import create_unique_color_uchar, putText_withBackGround
+from babysister.utils import (
+    create_unique_color_uchar, 
+    putText_withBackGround,
+    FPSCounter)
 
 
 def detect_and_track(frame, rois, classes, max_bb_size_ratio):
@@ -110,9 +113,10 @@ def run(
     rois['input_sizes'] = [None] * len(rois['value']) 
 
     # Detector 
-    anchor_path = "babysister/YOLOv3_TensorFlow/data/yolo_anchors.txt"
-    class_name_path = "babysister/YOLOv3_TensorFlow/data/coco.names"
-    restore_path = "babysister/YOLOv3_TensorFlow/data/darknet_weights/yolov3.ckpt"
+    yolov3_data_d = 'babysister/YOLOv3_TensorFlow/data'
+    anchor_path = os.path.join(yolov3_data_d, 'yolo_anchors.txt')
+    class_name_path = os.path.join(yolov3_data_d, 'coco.names')
+    restore_path = os.path.join(yolov3_data_d, 'darknet_weights/yolov3.ckpt')
     rois['detectors'] = [None] * len(rois['value']) 
 
     # Tracker
@@ -124,7 +128,8 @@ def run(
         rois['input_sizes'][roi_num] = input_size or [w, h]
 
         rois['detectors'][roi_num] = YOLOv3(
-            reversed(rois['input_sizes'][roi_num]), anchor_path, class_name_path, restore_path,
+            reversed(rois['input_sizes'][roi_num]),
+            anchor_path, class_name_path, restore_path,
             max_boxes, score_thresh, iou_thresh)
 
         # Tracker
@@ -150,10 +155,7 @@ def run(
     print('Result images will be saved to {}\n'.format(save_to))
 
     # fps
-    start_time = time.time()
-    limit = 1
-    counter = 0
-    fps = 0
+    fpsCounter = FPSCounter(limit=1)
 
     for frame_num, frame_path in enumerate(frames_path):
         # Frame info
@@ -166,7 +168,9 @@ def run(
         # Detect and track for each ROI
         dt_results = detect_and_track(frame, rois, classes, max_bb_size_ratio)
 
-        for roi_num, (roi_value, dt_result) in enumerate(zip(rois['value'], dt_results)):
+        # Drawing
+        for roi_num, (roi_value, dt_result) \
+        in enumerate(zip(rois['value'], dt_results)):
             x, y, w, h = roi_value
             detector = rois['detectors'][roi_num]
             [boxes, scores, labels], tracks = dt_result
@@ -183,20 +187,27 @@ def run(
             # frame_info
             for i, line in enumerate(frame_info.split("\n")):
                 text_y += i * text_line_gap
-                cv.putText(frame, line, (text_x, text_y), fontFace, 0.5, (0,0,0), fontThickness)
+                cv.putText(
+                    frame, line, (text_x, text_y),
+                    fontFace, 0.5, (0,0,0), fontThickness)
 
             # fps
-            str_fps = "FPS: {:.02f}".format(fps)
+            str_fps = "FPS: {:.02f}".format(fpsCounter.get())
             text_y += text_line_gap
-            cv.putText(frame, str_fps, (text_x, text_y), fontFace, 0.5, (0,0,0), fontThickness)
+            cv.putText(
+                    frame, str_fps, (text_x, text_y),
+                    fontFace, 0.5, (0,0,0), fontThickness)
             print(str_fps)
 
             # counts
-            str_counts = "Detected: {}\nTracked:  {}".format(len(labels), len(tracks))
+            str_counts = \
+                "Detected: {}\nTracked:  {}".format(len(labels), len(tracks))
             text_y += text_line_gap
             for i, line in enumerate(str_counts.split('\n')):
                 text_y += i * text_line_gap
-                cv.putText(frame, line, (text_x, text_y), fontFace, 0.5, (0,0,0), fontThickness)
+                cv.putText(
+                    frame, line, (text_x, text_y),
+                    fontFace, 0.5, (0,0,0), fontThickness)
             print(str_counts)
 
             # draw detections
@@ -233,7 +244,8 @@ def run(
 
                 # id_
                 putText_withBackGround(
-                    frame, str(id_), (x0,y0), fontFace, fontScale, fontThickness, color)
+                    frame, str(id_), (x0,y0), 
+                    fontFace, fontScale, fontThickness, color)
 
                 print("\t{}\t{}".format(int(track[4]), track[0:4]))
 
@@ -250,12 +262,7 @@ def run(
                 break
 
         # fps
-        counter += 1
-        if (time.time() - start_time) > limit:
-            fps = counter / (time.time() - start_time)
-            counter = 0
-            start_time = time.time()
-
+        fpsCounter.tick()
         print(flush=True)
 
     if do_show:
@@ -264,57 +271,11 @@ def run(
 
 def help():
     print("""
-Objects detection and online tracking.
+Objects detection and online tracking with multiple ROIs.
 
 Usage:
-    demo.py run FRAMES_DIR [INPUT_SIZE] [CLASSES]
-                    [MAX_BOXES] [SCORE_THRESH] [IOU_THRESH] [MAX_BB_SIZE_RATIO]
-                    [SAVE_TO] [DO_SHOW] [DO_SHOW_CLASS]
-
-    demo.py run --frames-dir FRAMES_DIR [--input-size INPUT_SIZE] [--classes CLASSES]
-                [--max-boxes MAX_BOXES] [--score-thresh SCORE_THRESH] [--iou-thresh IOU_THRESH] [--max-bb-size-ratio MAX_BB_SIZE_RATIO]
-                [--save-to SAVE_TO] [--do-show DO_SHOW] [--do-show-class DO_SHOW_CLASS]
 
 Descriptions:
-    --frames-dir <string>
-        Directory that contain sequences of frames (jpeg).
-
-    --input-size <2-tuple>
-        YOLOv3 input size.
-        Default: [416,416]
-
-    --classes <list of string>
-        list of classes used for filterring.
-        Default: "['all']" (no filter)
-
-    --max-boxes <integer>
-        maximum number of predicted boxes you'd like.
-        Default: 100
-
-    --score-thresh <float, in range [0, 1]>
-        if [ highest class probability score < score threshold]
-            then get rid of the corresponding boxes
-        Default: 0.5
-
-    --iou-thresh <float, in range [0, 1]>
-        "intersection over union" threshold used for NMS filtering.
-        Default: 0.5
-
-    --max-bb-size-ratio <2-tuple, in range [0, 0] ~ [1, 1]>
-        Boxes maximum size ratio wrt frame size.
-        Default: [1,1]
-
-    --save-to <string>
-        Directory to save result images.
-        Default: not to save
-
-    --do-show <boolean, or integer in range [0, 1]>
-        Whether to display result.
-        Default: True (1)
-
-    --do-show-class <boolean, or integer in range [0, 1]>
-        Whether to display class, score.
-        Default: True (1)
     """)
 
 

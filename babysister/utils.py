@@ -1,3 +1,4 @@
+import time
 import colorsys
 import cv2 as cv
 
@@ -7,8 +8,8 @@ def iou(bbox1, bbox2):
     Calculates the intersection-over-union of two bounding boxes.
 
     Args:
-        bbox1 (numpy.array, list of floats): bounding box in format x1,y1,x2,y2.
-        bbox2 (numpy.array, list of floats): bounding box in format x1,y1,x2,y2.
+        bbox1 (numpy.array, list of floats): bounding box in format x1,y1,x2,y2
+        bbox2 (numpy.array, list of floats): bounding box in format x1,y1,x2,y2
 
     Returns:
         int: intersection-over-onion of bbox1, bbox2
@@ -30,7 +31,8 @@ def iou(bbox1, bbox2):
     if overlap_x1 - overlap_x0 <= 0 or overlap_y1 - overlap_y0 <= 0:
         return 0
 
-    # if yes, calculate the ratio of the overlap to each ROI size and the unified size
+    # if yes, calculate the ratio of the overlap
+    # to each ROI size and the unified size
     size_1 = (x1_1 - x0_1) * (y1_1 - y0_1)
     size_2 = (x1_2 - x0_2) * (y1_2 - y0_2)
     size_intersection = (overlap_x1 - overlap_x0) * (overlap_y1 - overlap_y0)
@@ -88,7 +90,9 @@ def create_unique_color_uchar(tag, hue_step=0.41):
     return int(255*r), int(255*g), int(255*b)
 
 
-def putText_withBackGround(img, text, top_right, fontFace, fontScale, fontThickness, color):
+def putText_withBackGround(
+    img, text, top_right, fontFace, fontScale, fontThickness, color
+):
     """Put text in white, with a 'color' background
     """
     text_size = cv.getTextSize(text, fontFace, fontScale, fontThickness)
@@ -100,3 +104,25 @@ def putText_withBackGround(img, text, top_right, fontFace, fontScale, fontThickn
     cv.rectangle(img, (x1,y1), (x2,y2), color, -1)
     cv.putText(
         img, text, center, fontFace, fontScale, (255,255,255), fontThickness)
+
+
+class FPSCounter:
+    def __init__(self, limit):
+        self.limit = limit
+        self.start()
+
+    def start(self):
+        self.start_time = time.time()
+        self.counter = 0
+        self.fps = 0
+
+    def tick(self):
+        self.counter += 1
+        if (time.time() - self.start_time) > self.limit:
+            self.fps = self.counter / (time.time() - self.start_time)
+            self.counter = 0
+            self.start_time = time.time()
+        return self.fps
+
+    def get(self):
+        return self.fps
