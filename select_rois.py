@@ -6,7 +6,7 @@ import fire
 import cv2 as cv
 
 
-def run(im_file, save_to='ROIs'):
+def run(in_file, is_video=False, save_to='ROIs'):
     """
     """
     if os.path.isfile(save_to):
@@ -17,8 +17,16 @@ def run(im_file, save_to='ROIs'):
             print('Ok, thanks. Bye')
             sys.exit(1)
 
-    im = cv.imread(im_file)
+    if is_video:
+        cap = cv.VideoCapture(in_file)
+        assert cap.isOpened()
+        ret, im = cap.read()
+        assert ret, "Can't receive frame (stream end?). Exiting ..."
+    else:
+        im = cv.imread(in_file)
+
     rois = cv.selectROIs('Select ROIs', im)
+
     print(rois)
 
     with open(save_to, 'w+') as f:
