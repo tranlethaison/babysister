@@ -201,8 +201,8 @@ Download demo videos from [here](https://drive.google.com/drive/folders/1V5W7tBT
 
 ```shell
 $ python demo_video.py run \
-demo/TownCentre_720p.mp4 --rois-file ROIs\
---input-size [416,416] --classes ['person']\
+demo/TownCentre_720p.mp4 --rois-file ROIs \
+--input-size [416,416] --classes ['person'] \
 save-to demo/TownCentre_720p_result.mp4
 ```
 
