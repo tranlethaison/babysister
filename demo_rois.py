@@ -71,6 +71,21 @@ def detect_and_track(
     tracks = tracker.update(boxes, scores)
 
     return [boxes, scores, labels], tracks
+
+
+class DTThread(threading.Thread):
+    '''threading for detect_and_track
+    '''
+    def __init__(self, args):
+        super().__init__()
+        self.args = args
+
+    def run(self):
+        self.dt_result = detect_and_track(*self.args)
+
+    def join(self):
+        super().join()
+        return self.dt_result
     
 
 def run(
@@ -82,14 +97,6 @@ def run(
     # Frames sequence
     frames_path = sorted(glob.glob(frames_dir + '/*.jpg'))
     assert len(frames_path) > 0
-
-    # ROIs
-    rois = {}
-    with open(rois_file, 'r') as f:
-        rois['value'] = [
-            list(map(int, line.rstrip('\n').split(' ')))
-            for line in f
-        ]
 
     # Save prepare
     if save_to:
@@ -103,6 +110,25 @@ def run(
         else:
             os.makedirs(save_to)
 
+    # Visulization stuff
+    fontFace = cv.FONT_HERSHEY_SIMPLEX
+    fontScale = 0.35
+    fontThickness = 1
+    boxThickness = 2
+    if do_show:
+        winname = 'Babysister'
+        cv.namedWindow(winname)
+        # cv.moveWindow(winname, 0, 0)
+        cv.waitKey(1)
+    #--------------------------------------------------------------------------
+
+    # ROIs
+    rois = {}
+    with open(rois_file, 'r') as f:
+        rois['value'] = [
+            list(map(int, line.rstrip('\n').split(' ')))
+            for line in f
+        ]
     # Each ROI get it own 
     # Input size
     rois['input_sizes'] = [None] * len(rois['value']) 
@@ -129,17 +155,7 @@ def run(
 
         # Tracker
         rois['trackers'][roi_num] = SORTTracker()
-
-    # Visulization stuff
-    fontFace = cv.FONT_HERSHEY_SIMPLEX
-    fontScale = 0.35
-    fontThickness = 1
-    boxThickness = 2
-    if do_show:
-        winname = 'Babysister'
-        cv.namedWindow(winname)
-        # cv.moveWindow(winname, 0, 0)
-        cv.waitKey(1)
+    #--------------------------------------------------------------------------
 
     # info
     print('Processing {} images from {}'.format(len(frames_path), frames_dir))
@@ -152,6 +168,7 @@ def run(
     # fps
     fpsCounter = FPSCounter(limit=1)
 
+    # Go through each frame
     for frame_num, frame_path in enumerate(frames_path):
         # Frame info
         frame_info = "{}\nFrame: {}".format(frame_path, frame_num)
@@ -160,19 +177,27 @@ def run(
         # Read
         frame = cv.imread(frame_path, cv.IMREAD_COLOR)
 
-        # Detect and track for each ROI
+        # Detect and track for each ROI, multi threading as well
+        dt_threads = [None] * len(rois['value'])
         dt_results = [None] * len(rois['value'])
+
         for roi_num, roi_value in enumerate(rois['value']):
             # ROI data
             input_size = rois['input_sizes'][roi_num]
             detector = rois['detectors'][roi_num]
             tracker = rois['trackers'][roi_num]
 
-            dt_results[roi_num] = detect_and_track(
-                frame, roi_value, 
-                input_size, detector, tracker,
-                classes, max_bb_size_ratio
+            dt_threads[roi_num] = DTThread(
+                args=(
+                    frame, roi_value, 
+                    input_size, detector, tracker,
+                    classes, max_bb_size_ratio)
             )
+            dt_threads[roi_num].start()
+
+        for thread_num, dt_thread in enumerate(dt_threads):
+            dt_results[thread_num] = dt_thread.join()
+        #----------------------------------------------------------------------
 
         # Drawing
         for roi_num, (roi_value, dt_result) \
@@ -254,6 +279,7 @@ def run(
                     fontFace, fontScale, fontThickness, color)
 
                 print("\t{}\t{}".format(int(track[4]), track[0:4]))
+            #------------------------------------------------------------------
 
         # save
         if save_to:
