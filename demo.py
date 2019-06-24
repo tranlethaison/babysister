@@ -9,86 +9,13 @@ import fire
 
 from babysister.detector import YOLOv3
 from babysister.tracker import SORTTracker
+from babysister.babysister import detect_and_track
 from babysister.utils import (
     create_unique_color_uchar, 
-    putText_withBackGround,
+    putText_withBackGround, putTextWithBG,
     FPSCounter)
 
-
-def detect_and_track(
-    frame, roi_value, 
-    input_size, detector, tracker,
-    classes, max_bb_size_ratio
-):
-    '''
-    '''
-    x, y, w, h = roi_value
-    roi = frame[y:y+h, x:x+w]
-
-    # input data
-    input_data = cv.resize(
-        roi, dsize=tuple(input_size), interpolation=cv.INTER_LANCZOS4)
-    input_data = cv.cvtColor(input_data, cv.COLOR_BGR2RGB)
-    input_data = np.expand_dims(input_data, axis=0).astype(np.float32)
-
-    # detect
-    boxes, scores, labels = detector.detect(input_data)
-
-    # filter by class
-    if 'all' not in classes:
-        tmp_boxes, tmp_scores, tmp_labels = [], [], []
-        for box, score, label in zip(boxes, scores, labels):
-            if detector.classes[label] in classes:
-                tmp_boxes.append(box)
-                tmp_scores.append(score)
-                tmp_labels.append(label)
-        boxes, scores, labels = np.array(tmp_boxes), tmp_scores, tmp_labels
-
-    # rescale boxes
-    if boxes.shape[0] > 0:
-        size_ratio = np.divide([w, h], input_size)
-        boxes[:,0] *= size_ratio[0]
-        boxes[:,1] *= size_ratio[1]
-        boxes[:,2] *= size_ratio[0]
-        boxes[:,3] *= size_ratio[1]
-
-    #filter by box size wrt image size.
-    if np.greater([1,1], max_bb_size_ratio).any():
-        frame_h, frame_w = frame.shape[:2]
-        tmp_boxes, tmp_scores, tmp_labels = [], [], []
-        for box, score, label in zip(boxes, scores, labels):
-            x0, y0, x1, y1 = box
-            size_ratio = np.divide([x1-x0, y1-y0], [frame_w, frame_h])
-
-            if np.greater(size_ratio, max_bb_size_ratio).any():
-                continue
-
-            tmp_boxes.append(box)
-            tmp_scores.append(score)
-            tmp_labels.append(label)
-        boxes, scores, labels = np.array(tmp_boxes), tmp_scores, tmp_labels
-
-    # track
-    tracks = tracker.update(boxes, scores)
-
-    return [boxes, scores, labels], tracks
-
-
-class DTThread(threading.Thread):
-    '''threading for detect_and_track
-    '''
-    def __init__(self, args):
-        super().__init__()
-        self.args = args
-
-    def run(self):
-        self.dt_result = detect_and_track(*self.args)
-
-    def join(self):
-        super().join()
-        return self.dt_result
     
-
 def run(
     frames_dir, rois_file='ROIs',
     input_size=[416,416], classes=['all'],
@@ -125,44 +52,37 @@ def run(
     #--------------------------------------------------------------------------
 
     # ROIs
-    rois = {}
     with open(rois_file, 'r') as f:
-        rois['value'] = [
+        rois = [
             list(map(int, line.rstrip('\n').split(' ')))
             for line in f
         ]
     # There're no ROIs, create a full size one.
-    if len(rois['value']) == 0:
+    if len(rois) == 0:
         frame = cv.imread(frames_path[0], cv.IMREAD_COLOR)
         frame_h, frame_w = frame.shape[:2]
-        rois['value'].append([0, 0, frame_w, frame_h])
+        rois.append([0, 0, frame_w, frame_h])
+    #--------------------------------------------------------------------------
 
-    # Each ROI get it own 
-    # Input size
-    rois['input_sizes'] = [None] * len(rois['value']) 
+    # Core
+    # Input size is None, use frame size instead
+    if input_size is None:
+        frame = cv.imread(frames_path[0], cv.IMREAD_COLOR)
+        input_size = reversed(frame.shape[:2])
 
-    # Detector 
+    # Detector
     yolov3_data_d = 'babysister/YOLOv3_TensorFlow/data'
     anchor_path = os.path.join(yolov3_data_d, 'yolo_anchors.txt')
     class_name_path = os.path.join(yolov3_data_d, 'coco.names')
     restore_path = os.path.join(yolov3_data_d, 'darknet_weights/yolov3.ckpt')
-    rois['detectors'] = [None] * len(rois['value']) 
+
+    detector = YOLOv3(
+        reversed(input_size),
+        anchor_path, class_name_path, restore_path,
+        max_boxes, score_thresh, iou_thresh)
 
     # Tracker
-    rois['trackers'] = [None] * len(rois['value'])
-
-    for roi_num, roi_value in enumerate(rois['value']):
-        # Detector
-        x, y, w, h = roi_value
-        rois['input_sizes'][roi_num] = input_size or [w, h]
-
-        rois['detectors'][roi_num] = YOLOv3(
-            reversed(rois['input_sizes'][roi_num]),
-            anchor_path, class_name_path, restore_path,
-            max_boxes, score_thresh, iou_thresh)
-
-        # Tracker
-        rois['trackers'][roi_num] = SORTTracker()
+    tracker = SORTTracker()
     #--------------------------------------------------------------------------
 
     # info
@@ -178,116 +98,113 @@ def run(
 
     # Go through each frame
     for frame_num, frame_path in enumerate(frames_path):
-        # Frame info
-        frame_info = "{}\nFrame: {}".format(frame_path, frame_num)
-        print(frame_info)
-
-        # Read
+        # Read image
         frame = cv.imread(frame_path, cv.IMREAD_COLOR)
 
-        # Detect and track for each ROI, multi threading as well
-        dt_threads = [None] * len(rois['value'])
-        dt_results = [None] * len(rois['value'])
-
-        for roi_num, roi_value in enumerate(rois['value']):
-            # ROI data
-            input_size = rois['input_sizes'][roi_num]
-            detector = rois['detectors'][roi_num]
-            tracker = rois['trackers'][roi_num]
-
-            dt_threads[roi_num] = DTThread(
-                args=(
-                    frame, roi_value, 
-                    input_size, detector, tracker,
-                    classes, max_bb_size_ratio)
-            )
-            dt_threads[roi_num].start()
-
-        for thread_num, dt_thread in enumerate(dt_threads):
-            dt_results[thread_num] = dt_thread.join()
+        # Detect and track
+        boxes, scores, labels, tracks = detect_and_track(
+            frame, 
+            input_size, detector, tracker,
+            classes, max_bb_size_ratio
+        )
         #----------------------------------------------------------------------
 
-        # Drawing
-        for roi_num, (roi_value, dt_result) \
-        in enumerate(zip(rois['value'], dt_results)):
-            x, y, w, h = roi_value
-            detector = rois['detectors'][roi_num]
-            [boxes, scores, labels], tracks = dt_result
+        # putText Frame info
+        start_tl = np.array([0, 0])
+        txt = frame_path
+        txt_size = putTextWithBG(
+            frame, txt, start_tl,
+            fontFace, 0.5, fontThickness, 
+            color=(255, 255, 255), colorBG=(0, 0, 0)
+        )
+        print(txt)
+
+        start_tl += [0, txt_size[1]]
+        txt = 'Frame: {}'.format(frame_num)
+        txt_size = putTextWithBG(
+            frame, txt, start_tl,
+            fontFace, 0.5, fontThickness, 
+            color=(255, 255, 255), colorBG=(0, 0, 0)
+        )
+        print(txt)
+
+        # fps
+        start_tl += [0, txt_size[1]]
+        txt = "FPS: {:.02f}".format(fpsCounter.get())
+        txt_size = putTextWithBG(
+            frame, txt, start_tl,
+            fontFace, 0.5, fontThickness, 
+            color=(255, 255, 255), colorBG=(0, 0, 0)
+        )
+        print(txt)
+
+        # Go through ROIs
+        detected_objs = [0] * len(rois)
+
+        for roi_n, roi in enumerate(rois):
+            # Count detected OBJs in each ROI
+            roi_x, roi_y, roi_w, roi_h = roi
+            for box in boxes:
+                x0, y0, x1, y1 = box
+                if roi_x <= (x1 + x0) / 2 <= roi_x + roi_w \
+                and roi_y <= (y1 + y0) / 2 <= roi_y + roi_h:
+                    detected_objs[roi_n] += 1
 
             # Draw ROI
-            color = create_unique_color_uchar(roi_num) 
-            cv.rectangle(frame, (x, y), (x+w, y+h), color, boxThickness)
+            color = create_unique_color_uchar(roi_n) 
+            cv.rectangle(
+                frame, (roi_x, roi_y), (roi_x + roi_w, roi_y + roi_h), 
+                color, boxThickness)
 
-            # putText
-            frame[y:y+120, x:x+150, 1] = 255
-            text_x, text_y = 5 + x, 25 + y
-            text_line_gap = 20
+            # putText detected OBJs
+            txt = 'Detected: {}'.format(detected_objs[roi_n])
+            putTextWithBG(
+                frame, txt, (roi_x, roi_y),
+                fontFace, 0.5, fontThickness, 
+                color=(255, 255, 255), colorBG=(0, 0, 0)
+            )
 
-            # frame_info
-            for i, line in enumerate(frame_info.split("\n")):
-                text_y += i * text_line_gap
-                cv.putText(
-                    frame, line, (text_x, text_y),
-                    fontFace, 0.5, (0,0,0), fontThickness)
+        print(detected_objs)
 
-            # fps
-            str_fps = "FPS: {:.02f}".format(fpsCounter.get())
-            text_y += text_line_gap
-            cv.putText(
-                    frame, str_fps, (text_x, text_y),
-                    fontFace, 0.5, (0,0,0), fontThickness)
-            print(str_fps)
+        # Draw detections
+        print('Detections:\n\tClass\tScore\tBox')
+        for box, score, label in zip(boxes, scores, labels):
+            color = create_unique_color_uchar(label) # (0,0,255)
 
-            # counts
-            str_counts = \
-                "Detected: {}\nTracked:  {}".format(len(labels), len(tracks))
-            text_y += text_line_gap
-            for i, line in enumerate(str_counts.split('\n')):
-                text_y += i * text_line_gap
-                cv.putText(
-                    frame, line, (text_x, text_y),
-                    fontFace, 0.5, (0,0,0), fontThickness)
-            print(str_counts)
+            # box
+            x0, y0, x1, y1 = map(int, box)
+            cv.rectangle(frame, (x0,y0), (x1,y1), color, boxThickness)
 
-            # draw detections
-            print('Detections:\n\tClass\tScore\tBox')
-            for box, score, label in zip(boxes, scores, labels):
-                color = create_unique_color_uchar(label) # (0,0,255)
-
-                # box
-                x0, y0, x1, y1 = map(int, box + [x, y, x, y])
-                cv.rectangle(frame, (x0,y0), (x1,y1), color, boxThickness)
-
-                if do_show_class:
-                    # score
-                    putText_withBackGround(
-                        frame, '{:.02f}'.format(score),
-                        (x0,y0-20), fontFace, fontScale, fontThickness, color)
-
-                    # class
-                    putText_withBackGround(
-                        frame, detector.classes[label],
-                        (x0+40,y0-20), fontFace, fontScale, fontThickness, color)
-
-                print('\t{}\t{}\t{}'.format(detector.classes[label], score, box))
-
-            # draw tracking
-            print('Tracking:\n\tID\tBox')
-            for track in tracks:
-                id_ = int(track[4])
-                color = create_unique_color_uchar(id_)
-
-                # box
-                x0, y0, x1, y1 = map(int, track[0:4] + [x, y, x, y])
-                cv.rectangle(frame, (x0,y0), (x1,y1), color, boxThickness)
-
-                # id_
+            if do_show_class:
+                # score
                 putText_withBackGround(
-                    frame, str(id_), (x0,y0), 
-                    fontFace, fontScale, fontThickness, color)
+                    frame, '{:.02f}'.format(score),
+                    (x0,y0-20), fontFace, fontScale, fontThickness, color)
 
-                print("\t{}\t{}".format(int(track[4]), track[0:4]))
-            #------------------------------------------------------------------
+                # class
+                putText_withBackGround(
+                    frame, detector.classes[label],
+                    (x0+40,y0-20), fontFace, fontScale, fontThickness, color)
+
+            print('\t{}\t{}\t{}'.format(detector.classes[label], score, box))
+
+        # Draw tracking
+        print('Tracking:\n\tID\tBox')
+        for track in tracks:
+            id_ = int(track[4])
+            color = create_unique_color_uchar(id_)
+
+            # box
+            x0, y0, x1, y1 = map(int, track[0:4])
+            cv.rectangle(frame, (x0,y0), (x1,y1), color, boxThickness)
+
+            # id_
+            putText_withBackGround(
+                frame, str(id_), (x0,y0), 
+                fontFace, fontScale, fontThickness, color)
+
+            print("\t{}\t{}".format(int(track[4]), track[0:4]))
+        #------------------------------------------------------------------
 
         # save
         if save_to:

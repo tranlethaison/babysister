@@ -93,7 +93,8 @@ def create_unique_color_uchar(tag, hue_step=0.41):
 def putText_withBackGround(
     img, text, top_right, fontFace, fontScale, fontThickness, color
 ):
-    """Put text in white, with a 'color' background
+    """Deprecated, please use putTextWithBG instead
+    Put text in white, with a 'color' background
     """
     text_size = cv.getTextSize(text, fontFace, fontScale, fontThickness)
 
@@ -104,6 +105,21 @@ def putText_withBackGround(
     cv.rectangle(img, (x1,y1), (x2,y2), color, -1)
     cv.putText(
         img, text, center, fontFace, fontScale, (255,255,255), fontThickness)
+
+
+def putTextWithBG(
+    img, txt, top_left, fontFace, fontScale, fontThickness, color, colorBG
+):
+    '''Put text with background
+    '''
+    txt_size, _ = cv.getTextSize(txt, fontFace, fontScale, fontThickness)
+    w, h = txt_size
+    x, y = top_left
+    img[y:y+h, x:x+w, :] = colorBG
+    cv.putText(
+        img, txt, (x, y+h), 
+        fontFace, fontScale, color, fontThickness)
+    return txt_size
 
 
 class FPSCounter:
