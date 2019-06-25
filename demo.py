@@ -1,7 +1,5 @@
 import os
 import glob
-import time
-import threading
 
 import cv2 as cv
 import numpy as np
@@ -10,17 +8,20 @@ import fire
 from babysister.detector import YOLOv3
 from babysister.tracker import SORTTracker
 from babysister.babysister import detect_and_track
+from babysister.roi_manager import fieldnames, read_rois
 from babysister.utils import (
     create_unique_color_uchar, 
-    putText_withBackGround, putTextWithBG,
+    putTextWithBG,
     FPSCounter)
+from babysister.logger import Logging
 
     
 def run(
-    frames_dir, rois_file='ROIs',
+    frames_dir, rois_file='rois.csv',
     input_size=[416,416], classes=['all'],
     max_boxes=100, score_thresh=0.5, iou_thresh=0.5, max_bb_size_ratio=[1,1],
-    save_to=None, do_show=True, do_show_class=True
+    save_to=None, log_file='log.cvs',
+    do_show=True, do_show_class=True
 ):
     # Frames sequence
     frames_path = sorted(glob.glob(frames_dir + '/*.jpg'))
@@ -39,6 +40,10 @@ def run(
         else:
             os.makedirs(save_to)
 
+    # Logging
+    logging_ = Logging(log_file)
+    logger = logging_.get_logger()
+
     # Visulization stuff
     fontFace = cv.FONT_HERSHEY_SIMPLEX
     fontScale = 0.35
@@ -52,21 +57,21 @@ def run(
     #--------------------------------------------------------------------------
 
     # ROIs
-    with open(rois_file, 'r') as f:
-        rois = [
-            list(map(int, line.rstrip('\n').split(' ')))
-            for line in f
-        ]
-    # There're no ROIs, create a full size one.
+    rois = read_rois(rois_file, delimiter=',', quotechar="'")
+    # There're no ROIs, create one with size of the whole frame.
     if len(rois) == 0:
         frame = cv.imread(frames_path[0], cv.IMREAD_COLOR)
         frame_h, frame_w = frame.shape[:2]
-        rois.append([0, 0, frame_w, frame_h])
+
+        values = [0, 0, 0, frame_w, frame_h, -1]
+        rois = [{}]
+        for fieldname, value in zip(fieldnames, values):
+            rois[0][fieldname] = value
     #--------------------------------------------------------------------------
 
     # Core
-    # Input size is None, use frame size instead
     if input_size is None:
+        # use frame size instead
         frame = cv.imread(frames_path[0], cv.IMREAD_COLOR)
         input_size = reversed(frame.shape[:2])
 
@@ -87,7 +92,7 @@ def run(
 
     # info
     print('Processing {} images from {}'.format(len(frames_path), frames_dir))
-    print('With ROIs: {}'.format(rois))
+    print('With ROIs:\n{}'.format(rois))
     print('YOLOv3')
     print('Max boxes: {}\nScore threshold: {}\nIOU threshold: {}'
         .format(max_boxes, score_thresh, iou_thresh))
@@ -105,66 +110,8 @@ def run(
         boxes, scores, labels, tracks = detect_and_track(
             frame, 
             input_size, detector, tracker,
-            classes, max_bb_size_ratio
-        )
+            classes, max_bb_size_ratio)
         #----------------------------------------------------------------------
-
-        # putText Frame info
-        start_tl = np.array([0, 0])
-        txt = frame_path
-        txt_size = putTextWithBG(
-            frame, txt, start_tl,
-            fontFace, 0.5, fontThickness, 
-            color=(255, 255, 255), colorBG=(0, 0, 0)
-        )
-        print(txt)
-
-        start_tl += [0, txt_size[1]]
-        txt = 'Frame: {}'.format(frame_num)
-        txt_size = putTextWithBG(
-            frame, txt, start_tl,
-            fontFace, 0.5, fontThickness, 
-            color=(255, 255, 255), colorBG=(0, 0, 0)
-        )
-        print(txt)
-
-        # fps
-        start_tl += [0, txt_size[1]]
-        txt = "FPS: {:.02f}".format(fpsCounter.get())
-        txt_size = putTextWithBG(
-            frame, txt, start_tl,
-            fontFace, 0.5, fontThickness, 
-            color=(255, 255, 255), colorBG=(0, 0, 0)
-        )
-        print(txt)
-
-        # Go through ROIs
-        detected_objs = [0] * len(rois)
-
-        for roi_n, roi in enumerate(rois):
-            # Count detected OBJs in each ROI
-            roi_x, roi_y, roi_w, roi_h = roi
-            for box in boxes:
-                x0, y0, x1, y1 = box
-                if roi_x <= (x1 + x0) / 2 <= roi_x + roi_w \
-                and roi_y <= (y1 + y0) / 2 <= roi_y + roi_h:
-                    detected_objs[roi_n] += 1
-
-            # Draw ROI
-            color = create_unique_color_uchar(roi_n) 
-            cv.rectangle(
-                frame, (roi_x, roi_y), (roi_x + roi_w, roi_y + roi_h), 
-                color, boxThickness)
-
-            # putText detected OBJs
-            txt = 'Detected: {}'.format(detected_objs[roi_n])
-            putTextWithBG(
-                frame, txt, (roi_x, roi_y),
-                fontFace, 0.5, fontThickness, 
-                color=(255, 255, 255), colorBG=(0, 0, 0)
-            )
-
-        print(detected_objs)
 
         # Draw detections
         print('Detections:\n\tClass\tScore\tBox')
@@ -175,16 +122,28 @@ def run(
             x0, y0, x1, y1 = map(int, box)
             cv.rectangle(frame, (x0,y0), (x1,y1), color, boxThickness)
 
+            logger.info(','.join(map(str, [x0, y0, x1, y1])))
+
             if do_show_class:
                 # score
-                putText_withBackGround(
-                    frame, '{:.02f}'.format(score),
-                    (x0,y0-20), fontFace, fontScale, fontThickness, color)
+                txt = '{:.02f}'.format(score)
+
+                (txt_w, txt_h), baseLine = \
+                    cv.getTextSize(txt, fontFace, fontScale, fontThickness)
+                top_left = np.array([x0, y0 - txt_h - baseLine])
+
+                (txt_w, txt_h), baseLine = putTextWithBG(
+                    frame, txt, top_left,
+                    fontFace, fontScale, fontThickness, 
+                    color=(255, 255, 255), colorBG=color)
 
                 # class
-                putText_withBackGround(
-                    frame, detector.classes[label],
-                    (x0+40,y0-20), fontFace, fontScale, fontThickness, color)
+                txt = detector.classes[label]
+                top_left += [txt_w + 2, 0]
+                putTextWithBG(
+                    frame, txt, top_left,
+                    fontFace, fontScale, fontThickness, 
+                    color=(255, 255, 255), colorBG=color)
 
             print('\t{}\t{}\t{}'.format(detector.classes[label], score, box))
 
@@ -199,12 +158,88 @@ def run(
             cv.rectangle(frame, (x0,y0), (x1,y1), color, boxThickness)
 
             # id_
-            putText_withBackGround(
-                frame, str(id_), (x0,y0), 
-                fontFace, fontScale, fontThickness, color)
+            putTextWithBG(
+                frame, str(id_), (x0,y0),
+                fontFace, fontScale, fontThickness, 
+                color=(255, 255, 255), colorBG=color)
 
             print("\t{}\t{}".format(int(track[4]), track[0:4]))
-        #------------------------------------------------------------------
+        #----------------------------------------------------------------------
+
+        # putText Frame info
+        top_left = np.array([0, 0])
+        txt = frame_path
+        (txt_w, txt_h), baseLine = putTextWithBG(
+            frame, txt, top_left,
+            fontFace, 0.5, fontThickness, 
+            color=(255, 255, 255), colorBG=(0, 0, 0))
+        print(txt)
+
+        top_left += [0, txt_h + baseLine]
+        txt = 'Frame: {}'.format(frame_num)
+        (txt_w, txt_h), baseLine = putTextWithBG(
+            frame, txt, top_left,
+            fontFace, 0.5, fontThickness, 
+            color=(255, 255, 255), colorBG=(0, 0, 0))
+        print(txt)
+
+        # fps
+        top_left += [0, txt_h + baseLine]
+        txt = "FPS: {:.02f}".format(fpsCounter.get())
+        (txt_w, txt_h), baseLine = putTextWithBG(
+            frame, txt, top_left,
+            fontFace, 0.5, fontThickness, 
+            color=(255, 255, 255), colorBG=(0, 0, 0))
+        print(txt)
+
+        # Go through ROIs
+        detected_objs = [0] * len(rois)
+        is_full = [False] * len(rois)
+        for roi_n, roi in enumerate(rois):
+            # Count detected OBJs in each ROI
+            for box in boxes:
+                x0, y0, x1, y1 = box
+                if roi['x'] <= (x1 + x0) / 2 <= roi['x'] + roi['w'] \
+                and roi['y'] <= (y1 + y0) / 2 <= roi['y'] + roi['h']:
+                    detected_objs[roi_n] += 1
+
+            # Determine if ROI is full
+            is_full[roi_n] = \
+                roi['max_objects'] >= 0 \
+                and detected_objs[roi_n] >= roi['max_objects']
+
+            # Draw ROI
+            color = create_unique_color_uchar(roi_n) 
+            cv.rectangle(
+                frame, 
+                (roi['x'], roi['y']), 
+                (roi['x'] + roi['w'], roi['y'] + roi['h']), 
+                color, boxThickness)
+
+            # putText detected OBJs
+            txt = 'Detected: {}'.format(detected_objs[roi_n])
+            top_left = np.array([roi['x'], roi['y']])
+            (txt_w, txt_h), baseLine = putTextWithBG(
+                frame, txt, top_left,
+                fontFace, 0.5, fontThickness, 
+                color=(255, 255, 255), colorBG=(0, 0, 0))
+
+            # putText is ROI full
+            txt = 'Max objects: {}'.format(roi['max_objects'])
+            top_left += [0, txt_h + baseLine]
+            (txt_w, txt_h), baseLine = putTextWithBG(
+                frame, txt, top_left,
+                fontFace, 0.5, fontThickness, 
+                color=(255, 255, 255), colorBG=(0, 0, 0))
+
+            txt = 'Is full: {}'.format(is_full[roi_n])
+            top_left += [0, txt_h + baseLine]
+            (txt_w, txt_h), baseLine = putTextWithBG(
+                frame, txt, top_left,
+                fontFace, 0.5, fontThickness, 
+                color=(255, 255, 255), colorBG=(0, 0, 0))
+        print(detected_objs)
+        #----------------------------------------------------------------------
 
         # save
         if save_to:
@@ -261,7 +296,7 @@ Descriptions:
 
     --input-size <2-tuple>
         YOLOv3 input size.
-        Pass in `None` to use frame/ROIs sizes. (no resizing)
+        Pass in `None` to use frame sizes. (no resizing)
         Default: [416,416]
 
     --classes <list of string>

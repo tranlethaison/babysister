@@ -112,14 +112,14 @@ def putTextWithBG(
 ):
     '''Put text with background
     '''
-    txt_size, _ = cv.getTextSize(txt, fontFace, fontScale, fontThickness)
-    w, h = txt_size
+    (w, h), baseLine = cv.getTextSize(txt, fontFace, fontScale, fontThickness)
     x, y = top_left
-    img[y:y+h, x:x+w, :] = colorBG
+
+    img[y:y + h + baseLine, x:x + w, :] = colorBG
     cv.putText(
-        img, txt, (x, y+h), 
+        img, txt, (x, y + h), 
         fontFace, fontScale, color, fontThickness)
-    return txt_size
+    return (w, h), baseLine
 
 
 class FPSCounter:
