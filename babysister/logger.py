@@ -33,7 +33,7 @@ class Logger:
 
     def __enter__(self):
         return self
-            
+
     def __exit__(self, exc_type, exc_value, traceback):
         self.close()
     
@@ -41,9 +41,16 @@ class Logger:
 if __name__ == '__main__':
     time_fmt = '%Y/%m/%d %H:%M:%S'
     field_names = ['timestamp', 'msg']
-    with Logger(field_names, 'test.csv') as logger:
-        for i in range(10):
-            timestamp = time.strftime(time_fmt, time.localtime())
-            logger.info([timestamp, i]) 
-            time.sleep(2)
+    #with Logger(field_names, 'test.csv') as logger:
+    #    for i in range(10):
+    #        timestamp = time.strftime(time_fmt, time.localtime())
+    #        logger.info([timestamp, i]) 
+    #        time.sleep(2)
+
+    logger = Logger(field_names, 'test.csv') 
+    for i in range(10):
+        timestamp = time.strftime(time_fmt, time.localtime())
+        logger.info([timestamp, i]) 
+        time.sleep(2)
+    logger.close()
 

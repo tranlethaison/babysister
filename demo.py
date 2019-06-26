@@ -1,4 +1,5 @@
 import os
+import time
 import glob
 
 import cv2 as cv
@@ -9,11 +10,22 @@ from babysister.detector import YOLOv3
 from babysister.tracker import SORTTracker
 from babysister.babysister import detect_and_track
 from babysister.roi_manager import fieldnames, read_rois
+from babysister.drawer import draw_detection, draw_tracking
 from babysister.utils import (
     create_unique_color_uchar, 
     putTextWithBG,
     FPSCounter)
-from babysister.logger import Logging
+from babysister.logger import Logger
+
+
+def is_inside_roi(roi_value, box):
+    '''Is bouding box inside ROI
+    '''
+    x, y, w, h = roi_value
+    x0, y0, x1, y1 = box
+    return (
+        x <= (x1 + x0) / 2 <= x + w
+        and y <= (y1 + y0) / 2 <= y + h)
 
     
 def run(
@@ -40,20 +52,13 @@ def run(
         else:
             os.makedirs(save_to)
 
-    # Logging
-    logging_ = Logging(log_file)
-    logger = logging_.get_logger()
-
-    # Visulization stuff
-    fontFace = cv.FONT_HERSHEY_SIMPLEX
-    fontScale = 0.35
-    fontThickness = 1
-    boxThickness = 2
-    if do_show:
-        winname = 'Babysister'
-        cv.namedWindow(winname)
-        # cv.moveWindow(winname, 0, 0)
-        cv.waitKey(1)
+    # Log
+    field_names = ['roi_id', 'n_objs', 'timestamp']
+    time_fmt = '%Y/%m/%d %H:%M:%S'
+    timestamp = time.time()
+    log_dist = 5
+    logger = Logger(field_names, save_to=log_file, delimiter=',', quotechar="'")
+    logger.info(field_names)
     #--------------------------------------------------------------------------
 
     # ROIs
@@ -70,10 +75,10 @@ def run(
     #--------------------------------------------------------------------------
 
     # Core
-    if input_size is None:
+    if len(input_size) == 0:
         # use frame size instead
         frame = cv.imread(frames_path[0], cv.IMREAD_COLOR)
-        input_size = reversed(frame.shape[:2])
+        input_size = list(reversed(frame.shape[:2]))
 
     # Detector
     yolov3_data_d = 'babysister/YOLOv3_TensorFlow/data'
@@ -89,6 +94,17 @@ def run(
     # Tracker
     tracker = SORTTracker()
     #--------------------------------------------------------------------------
+
+    # Visulization stuff
+    fontFace = cv.FONT_HERSHEY_SIMPLEX
+    fontScale = 0.35
+    fontThickness = 1
+    boxThickness = 2
+    if do_show:
+        winname = 'Babysister {}'.format(input_size)
+        cv.namedWindow(winname)
+        # cv.moveWindow(winname, 0, 0)
+        cv.waitKey(1)
 
     # info
     print('Processing {} images from {}'.format(len(frames_path), frames_dir))
@@ -113,57 +129,12 @@ def run(
             classes, max_bb_size_ratio)
         #----------------------------------------------------------------------
 
-        # Draw detections
-        print('Detections:\n\tClass\tScore\tBox')
-        for box, score, label in zip(boxes, scores, labels):
-            color = create_unique_color_uchar(label) # (0,0,255)
-
-            # box
-            x0, y0, x1, y1 = map(int, box)
-            cv.rectangle(frame, (x0,y0), (x1,y1), color, boxThickness)
-
-            logger.info(','.join(map(str, [x0, y0, x1, y1])))
-
-            if do_show_class:
-                # score
-                txt = '{:.02f}'.format(score)
-
-                (txt_w, txt_h), baseLine = \
-                    cv.getTextSize(txt, fontFace, fontScale, fontThickness)
-                top_left = np.array([x0, y0 - txt_h - baseLine])
-
-                (txt_w, txt_h), baseLine = putTextWithBG(
-                    frame, txt, top_left,
-                    fontFace, fontScale, fontThickness, 
-                    color=(255, 255, 255), colorBG=color)
-
-                # class
-                txt = detector.classes[label]
-                top_left += [txt_w + 2, 0]
-                putTextWithBG(
-                    frame, txt, top_left,
-                    fontFace, fontScale, fontThickness, 
-                    color=(255, 255, 255), colorBG=color)
-
-            print('\t{}\t{}\t{}'.format(detector.classes[label], score, box))
-
         # Draw tracking
-        print('Tracking:\n\tID\tBox')
-        for track in tracks:
-            id_ = int(track[4])
-            color = create_unique_color_uchar(id_)
-
-            # box
-            x0, y0, x1, y1 = map(int, track[0:4])
-            cv.rectangle(frame, (x0,y0), (x1,y1), color, boxThickness)
-
-            # id_
-            putTextWithBG(
-                frame, str(id_), (x0,y0),
-                fontFace, fontScale, fontThickness, 
-                color=(255, 255, 255), colorBG=color)
-
-            print("\t{}\t{}".format(int(track[4]), track[0:4]))
+        #print('Tracking:\n\tID\tBox')
+        #for track in tracks:
+        #    draw_tracking(
+        #        frame, track,
+        #        fontFace, fontScale, fontThickness, boxThickness)
         #----------------------------------------------------------------------
 
         # putText Frame info
@@ -171,7 +142,7 @@ def run(
         txt = frame_path
         (txt_w, txt_h), baseLine = putTextWithBG(
             frame, txt, top_left,
-            fontFace, 0.5, fontThickness, 
+            fontFace, fontScale, fontThickness, 
             color=(255, 255, 255), colorBG=(0, 0, 0))
         print(txt)
 
@@ -179,7 +150,7 @@ def run(
         txt = 'Frame: {}'.format(frame_num)
         (txt_w, txt_h), baseLine = putTextWithBG(
             frame, txt, top_left,
-            fontFace, 0.5, fontThickness, 
+            fontFace, fontScale, fontThickness, 
             color=(255, 255, 255), colorBG=(0, 0, 0))
         print(txt)
 
@@ -188,40 +159,85 @@ def run(
         txt = "FPS: {:.02f}".format(fpsCounter.get())
         (txt_w, txt_h), baseLine = putTextWithBG(
             frame, txt, top_left,
-            fontFace, 0.5, fontThickness, 
+            fontFace, fontScale, fontThickness, 
             color=(255, 255, 255), colorBG=(0, 0, 0))
         print(txt)
 
+        # Keep track of
+        n_detected_objs = [0] * len(rois) # number of objs inside each ROI
+        is_full = [False] * len(rois) # is each ROI full
+
+        # Log
+        now = time.time()
+        do_log = now - timestamp >= log_dist
+
         # Go through ROIs
-        detected_objs = [0] * len(rois)
-        is_full = [False] * len(rois)
         for roi_n, roi in enumerate(rois):
-            # Count detected OBJs in each ROI
-            for box in boxes:
-                x0, y0, x1, y1 = box
-                if roi['x'] <= (x1 + x0) / 2 <= roi['x'] + roi['w'] \
-                and roi['y'] <= (y1 + y0) / 2 <= roi['y'] + roi['h']:
-                    detected_objs[roi_n] += 1
+            roi_value = (roi['x'], roi['y'], roi['w'], roi['h'])
+
+            # Keep track of detected OBJs in this ROI
+            counted_objs_mask = np.asarray([False] * len(boxes))
+
+            # Go through detected OBJs
+            print('Detections:\n\tClass\tScore\tBox')
+            for id_ in range(len(boxes)):
+                if not is_inside_roi(roi_value, boxes[id_]):
+                    continue
+
+                n_detected_objs[roi_n] += 1
+                counted_objs_mask[id_] = True
+
+                draw_detection(
+                    frame,
+                    boxes[id_], scores[id_], labels[id_], detector.classes,
+                    fontFace, fontScale, fontThickness, boxThickness,
+                    do_show_class
+                )
+
+            # Filter out detected OBJs in this ROI
+            boxes = np.asarray(boxes)[~counted_objs_mask]
+            scores = np.asarray(scores)[~counted_objs_mask]
+            labels = np.asarray(labels)[~counted_objs_mask]
 
             # Determine if ROI is full
             is_full[roi_n] = \
                 roi['max_objects'] >= 0 \
-                and detected_objs[roi_n] >= roi['max_objects']
+                and n_detected_objs[roi_n] >= roi['max_objects']
+            #------------------------------------------------------------------
+
+            # Keep track of tracked OBJs in this ROI
+            counted_objs_mask = np.asarray([False] * len(tracks))
+
+            # Go through tracked OBJs
+            print('Tracking:\n\tID\tBox')
+            for id_ in range(len(tracks)):
+                if not is_inside_roi(roi_value, tracks[id_][:4]):
+                    continue
+
+                counted_objs_mask[id_] = True
+
+                draw_tracking(
+                    frame, tracks[id_],
+                    fontFace, fontScale, fontThickness, boxThickness)
+
+            # Filter out tracked OBJs in this ROI
+            tracks = tracks[~counted_objs_mask]
+            #------------------------------------------------------------------
 
             # Draw ROI
-            color = create_unique_color_uchar(roi_n) 
+            color = (0, 0, 0) #create_unique_color_uchar(roi_n) 
             cv.rectangle(
                 frame, 
                 (roi['x'], roi['y']), 
                 (roi['x'] + roi['w'], roi['y'] + roi['h']), 
-                color, boxThickness)
+                color, 3)
 
             # putText detected OBJs
-            txt = 'Detected: {}'.format(detected_objs[roi_n])
+            txt = 'Detected: {}'.format(n_detected_objs[roi_n])
             top_left = np.array([roi['x'], roi['y']])
             (txt_w, txt_h), baseLine = putTextWithBG(
                 frame, txt, top_left,
-                fontFace, 0.5, fontThickness, 
+                fontFace, fontScale, fontThickness, 
                 color=(255, 255, 255), colorBG=(0, 0, 0))
 
             # putText is ROI full
@@ -229,16 +245,23 @@ def run(
             top_left += [0, txt_h + baseLine]
             (txt_w, txt_h), baseLine = putTextWithBG(
                 frame, txt, top_left,
-                fontFace, 0.5, fontThickness, 
+                fontFace, fontScale, fontThickness, 
                 color=(255, 255, 255), colorBG=(0, 0, 0))
 
             txt = 'Is full: {}'.format(is_full[roi_n])
             top_left += [0, txt_h + baseLine]
             (txt_w, txt_h), baseLine = putTextWithBG(
                 frame, txt, top_left,
-                fontFace, 0.5, fontThickness, 
+                fontFace, fontScale, fontThickness, 
                 color=(255, 255, 255), colorBG=(0, 0, 0))
-        print(detected_objs)
+
+            # Log
+            if do_log: 
+                timestamp = now
+                logger.info([
+                    roi['id'], 
+                    n_detected_objs[roi_n], 
+                    time.strftime(time_fmt, time.localtime(timestamp))])
         #----------------------------------------------------------------------
 
         # save
@@ -257,6 +280,7 @@ def run(
         fpsCounter.tick()
         print(flush=True)
 
+    logger.close()
     if do_show:
         cv.destroyAllWindows()
 
