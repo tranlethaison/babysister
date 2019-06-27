@@ -1,9 +1,6 @@
 import cv2 as cv
 import numpy as np
 
-from .detector import YOLOv3
-from .tracker import SORTTracker
-
 
 def detect_and_track(
     frame, 

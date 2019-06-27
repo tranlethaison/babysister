@@ -6,8 +6,6 @@ import cv2 as cv
 import numpy as np
 import fire
 
-from babysister.detector import YOLOv3
-from babysister.tracker import SORTTracker
 from babysister.babysister import detect_and_track
 from babysister.roi_manager import fieldnames, read_rois
 from babysister.drawer import draw_detection, draw_tracking
@@ -16,10 +14,12 @@ from babysister.utils import (
     putTextWithBG,
     FPSCounter)
 from babysister.logger import Logger
+import doc.help
 
 
 def is_inside_roi(roi_value, box):
     '''Is bouding box inside ROI
+    If its centroid is inside ROI, it also is.
     '''
     x, y, w, h = roi_value
     x0, y0, x1, y1 = box
@@ -35,6 +35,10 @@ def run(
     save_to=None, log_file='log.cvs',
     do_show=True, do_show_class=True
 ):
+    # Time consuming import
+    from babysister.detector import YOLOv3
+    from babysister.tracker import SORTTracker
+
     # Frames sequence
     frames_path = sorted(glob.glob(frames_dir + '/*.jpg'))
     assert len(frames_path) > 0
@@ -128,40 +132,6 @@ def run(
             input_size, detector, tracker,
             classes, max_bb_size_ratio)
         #----------------------------------------------------------------------
-
-        # Draw tracking
-        #print('Tracking:\n\tID\tBox')
-        #for track in tracks:
-        #    draw_tracking(
-        #        frame, track,
-        #        fontFace, fontScale, fontThickness, boxThickness)
-        #----------------------------------------------------------------------
-
-        # putText Frame info
-        top_left = np.array([0, 0])
-        txt = frame_path
-        (txt_w, txt_h), baseLine = putTextWithBG(
-            frame, txt, top_left,
-            fontFace, fontScale, fontThickness, 
-            color=(255, 255, 255), colorBG=(0, 0, 0))
-        print(txt)
-
-        top_left += [0, txt_h + baseLine]
-        txt = 'Frame: {}'.format(frame_num)
-        (txt_w, txt_h), baseLine = putTextWithBG(
-            frame, txt, top_left,
-            fontFace, fontScale, fontThickness, 
-            color=(255, 255, 255), colorBG=(0, 0, 0))
-        print(txt)
-
-        # fps
-        top_left += [0, txt_h + baseLine]
-        txt = "FPS: {:.02f}".format(fpsCounter.get())
-        (txt_w, txt_h), baseLine = putTextWithBG(
-            frame, txt, top_left,
-            fontFace, fontScale, fontThickness, 
-            color=(255, 255, 255), colorBG=(0, 0, 0))
-        print(txt)
 
         # Keep track of
         n_detected_objs = [0] * len(rois) # number of objs inside each ROI
@@ -264,6 +234,33 @@ def run(
                     time.strftime(time_fmt, time.localtime(timestamp))])
         #----------------------------------------------------------------------
 
+        # putText Frame info
+        top_left = np.array([0, 0])
+        txt = frame_path
+        (txt_w, txt_h), baseLine = putTextWithBG(
+            frame, txt, top_left,
+            fontFace, fontScale, fontThickness, 
+            color=(255, 255, 255), colorBG=(0, 0, 0))
+        print(txt)
+
+        top_left += [0, txt_h + baseLine]
+        txt = 'Frame: {}'.format(frame_num)
+        (txt_w, txt_h), baseLine = putTextWithBG(
+            frame, txt, top_left,
+            fontFace, fontScale, fontThickness, 
+            color=(255, 255, 255), colorBG=(0, 0, 0))
+        print(txt)
+
+        # fps
+        top_left += [0, txt_h + baseLine]
+        txt = "FPS: {:.02f}".format(fpsCounter.get())
+        (txt_w, txt_h), baseLine = putTextWithBG(
+            frame, txt, top_left,
+            fontFace, fontScale, fontThickness, 
+            color=(255, 255, 255), colorBG=(0, 0, 0))
+        print(txt)
+        #----------------------------------------------------------------------
+
         # save
         if save_to:
             _, frame_name = os.path.split(frame_path)
@@ -286,76 +283,7 @@ def run(
 
 
 def help():
-    print(r"""
-Objects detection and online tracking with multiple ROIs.
-
-Usage:
-demo.py run \
-    FRAMES_DIR [ROIS_FILE] \
-    [INPUT_SIZE] [CLASSES] \
-    [MAX_BOXES] [SCORE_THRESH] [IOU_THRESH] [MAX_BB_SIZE_RATIO] \
-    [SAVE_TO] [DO_SHOW] [DO_SHOW_CLASS]
-
-demo.py run \
-    --frames-dir FRAMES_DIR [--rois-file ROIS_FILE] \
-    [--input-size INPUT_SIZE] [--classes CLASSES] \
-    [--max-boxes MAX_BOXES] [--score-thresh SCORE_THRESH] \
-    [--iou-thresh IOU_THRESH] [--max-bb-size-ratio MAX_BB_SIZE_RATIO] \
-    [--save-to SAVE_TO] \
-    [--do-show DO_SHOW] [--do-show-class DO_SHOW_CLASS]
-
-Descriptions:
-    --frames-dir <string>
-        Directory that contain sequences of frames (jpeg).
-
-    --rois-file <string>
-        Path to ROIs file (created manualy, or with `select_rois.py`).
-        If do not want to use ROIs, pass in an empty file.
-
-        ROI contains: 
-            top-left coordinate, width, height
-        ROI format: 
-            x y width height
-        ROIs file contains ROI, each on 1 line. 
-
-    --input-size <2-tuple>
-        YOLOv3 input size.
-        Pass in `None` to use frame sizes. (no resizing)
-        Default: [416,416]
-
-    --classes <list of string>
-        list of classes used for filterring.
-        Default: "['all']" (no filter)
-
-    --max-boxes <integer>
-        maximum number of predicted boxes you'd like.
-        Default: 100
-
-    --score-thresh <float, in range [0, 1]>
-        if [ highest class probability score < score threshold]
-            then get rid of the corresponding boxes
-        Default: 0.5
-
-    --iou-thresh <float, in range [0, 1]>
-        "intersection over union" threshold used for NMS filtering.
-        Default: 0.5
-
-    --max_bb_size_ratio <2-tuple, in range [0, 0] ~ [1, 1]>
-        Boxes maximum size ratio wrt frame size.
-        Default: [1,1]
-
-    --save-to <string>
-        Directory to save result images.
-        Default: not to save
-
-    --do-show <boolean>
-        Whether to display result.
-        Default: True (1)
-
-    --do-show-class <boolean>
-        Whether to display classes, scores.
-        Default: True (1)
-    """)
+    print(doc.help.demo)
 
 
 if __name__ == '__main__':
