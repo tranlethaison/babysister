@@ -30,7 +30,7 @@ def is_inside_roi(roi_value, box):
     
 def run(
     frames_dir, rois_file='rois.csv',
-    input_size=[416,416], classes=['all'],
+    input_size=[416,416], valid_classes=['all'],
     max_boxes=100, score_thresh=0.5, iou_thresh=0.5, max_bb_size_ratio=[1,1],
     save_to=None, log_file='log.cvs',
     do_show=True, do_show_class=True
@@ -57,12 +57,10 @@ def run(
             os.makedirs(save_to)
 
     # Log
-    field_names = ['roi_id', 'n_objs', 'timestamp']
-    time_fmt = '%Y/%m/%d %H:%M:%S'
-    timestamp = time.time()
+    seconds = time.time()
     log_dist = 5
-    logger = Logger(field_names, save_to=log_file, delimiter=',', quotechar="'")
-    logger.info(field_names)
+    logger = Logger(save_to=log_file, delimiter=',', quotechar="'")
+    logger.write_header()
     #--------------------------------------------------------------------------
 
     # ROIs
@@ -130,7 +128,7 @@ def run(
         boxes, scores, labels, tracks = detect_and_track(
             frame, 
             input_size, detector, tracker,
-            classes, max_bb_size_ratio)
+            valid_classes, max_bb_size_ratio)
         #----------------------------------------------------------------------
 
         # Keep track of
@@ -139,7 +137,7 @@ def run(
 
         # Log
         now = time.time()
-        do_log = now - timestamp >= log_dist
+        do_log = now - seconds >= log_dist
 
         # Go through ROIs
         for roi_n, roi in enumerate(rois):
@@ -165,9 +163,10 @@ def run(
                 )
 
             # Filter out detected OBJs in this ROI
-            boxes = np.asarray(boxes)[~counted_objs_mask]
-            scores = np.asarray(scores)[~counted_objs_mask]
-            labels = np.asarray(labels)[~counted_objs_mask]
+            if len(counted_objs_mask) > 0:
+                boxes = np.asarray(boxes)[~counted_objs_mask]
+                scores = np.asarray(scores)[~counted_objs_mask]
+                labels = np.asarray(labels)[~counted_objs_mask]
 
             # Determine if ROI is full
             is_full[roi_n] = \
@@ -191,7 +190,8 @@ def run(
                     fontFace, fontScale, fontThickness, boxThickness)
 
             # Filter out tracked OBJs in this ROI
-            tracks = tracks[~counted_objs_mask]
+            if len(counted_objs_mask) > 0:
+                tracks = tracks[~counted_objs_mask]
             #------------------------------------------------------------------
 
             # Draw ROI
@@ -227,11 +227,8 @@ def run(
 
             # Log
             if do_log: 
-                timestamp = now
-                logger.info([
-                    roi['id'], 
-                    n_detected_objs[roi_n], 
-                    time.strftime(time_fmt, time.localtime(timestamp))])
+                seconds = now
+                logger.info([roi['id'], n_detected_objs[roi_n], seconds])
         #----------------------------------------------------------------------
 
         # putText Frame info

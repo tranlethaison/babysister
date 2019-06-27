@@ -5,7 +5,7 @@ import numpy as np
 def detect_and_track(
     frame, 
     input_size, detector, tracker,
-    classes, max_bb_size_ratio
+    valid_classes, max_bb_size_ratio
 ):
     '''
     '''
@@ -19,10 +19,10 @@ def detect_and_track(
     boxes, scores, labels = detector.detect(input_data)
 
     # filter by class
-    if 'all' not in classes:
+    if 'all' not in valid_classes:
         tmp_boxes, tmp_scores, tmp_labels = [], [], []
         for box, score, label in zip(boxes, scores, labels):
-            if detector.classes[label] in classes:
+            if detector.classes[label] in valid_classes:
                 tmp_boxes.append(box)
                 tmp_scores.append(score)
                 tmp_labels.append(label)

@@ -3,10 +3,9 @@ import time
 
 
 class Logger:
-    def __init__(
-        self, field_names, save_to='log.csv', delimiter=',', quotechar="'"
-    ):
-        self.field_names = field_names
+    def __init__(self, save_to='log.csv', delimiter=',', quotechar="'"):
+        self.header = ['roi_id', 'n_objs', 'timestamp']
+        self.time_fmt = '%Y/%m/%d %H:%M:%S'
         self.save_to = save_to
         self.delimiter = delimiter
         self.quotechar = quotechar
@@ -15,42 +14,36 @@ class Logger:
     def open(self):
         self.fp = open(self.save_to, 'w+', newline='')
         self.writer = csv.DictWriter(
-            self.fp, fieldnames=self.field_names,
+            self.fp, fieldnames=self.header,
             delimiter=self.delimiter, quotechar=self.quotechar,
             quoting=csv.QUOTE_NONNUMERIC)
 
     def close(self):
         self.fp.close()
 
-    def info(self, msg):
-        if type(msg) is dict:
-            self.writer.writerow(msg)
-        elif type(msg) is list:
+    def write_header(self):
+        self.info(self.header, do_format_time=False)
+
+    def info(self, msg, do_format_time=True):
+        if type(msg) is list:
             row = {}
-            for field_name, value in zip(self.field_names, msg):
+            for field_name, value in zip(self.header, msg):
                 row[field_name] = value
-            self.writer.writerow(row)
+
+        elif type(msg) is dict:
+            row = msg
+
+        if do_format_time:
+            row['timestamp'] = self.format_time(row['timestamp'])
+
+        self.writer.writerow(row)
+
+    def format_time(self, seconds):
+        return time.strftime(self.time_fmt, time.localtime(seconds))
 
     def __enter__(self):
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
         self.close()
-    
-
-if __name__ == '__main__':
-    time_fmt = '%Y/%m/%d %H:%M:%S'
-    field_names = ['timestamp', 'msg']
-    #with Logger(field_names, 'test.csv') as logger:
-    #    for i in range(10):
-    #        timestamp = time.strftime(time_fmt, time.localtime())
-    #        logger.info([timestamp, i]) 
-    #        time.sleep(2)
-
-    logger = Logger(field_names, 'test.csv') 
-    for i in range(10):
-        timestamp = time.strftime(time_fmt, time.localtime())
-        logger.info([timestamp, i]) 
-        time.sleep(2)
-    logger.close()
 

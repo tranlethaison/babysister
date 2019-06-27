@@ -24,12 +24,16 @@ def select_rois(
     if is_video:
         cap = cv.VideoCapture(in_file)
         assert cap.isOpened()
-        ret, im = cap.read()
+        ret, img = cap.read()
         assert ret, "Can't receive frame"
     else:
-        im = cv.imread(in_file)
+        img = cv.imread(in_file)
 
-    rois = cv.selectROIs('Select ROIs', im)
+    select_rois_over_image(img, save_to, delimiter, quotechar)
+
+
+def select_rois_over_image(img, save_to, delimiter, quotechar):
+    rois = cv.selectROIs('Select ROIs', img)
 
     with open(save_to, 'w+', newline='') as csvfile:
         writer = csv.DictWriter(
@@ -46,7 +50,7 @@ def select_rois(
                 row[fieldname] = value
             writer.writerow(row)
 
-            cv.imshow(str(roi), im[y:y+h, x:x+w])
+            cv.imshow(str(roi), img[y:y+h, x:x+w])
 
         cv.waitKey(0)
         cv.destroyAllWindows() 
