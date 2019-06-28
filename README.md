@@ -15,8 +15,6 @@ _Work in progress_
 ## Introduction
 Objects detection and online tracking.
 
-![](decorations/TownCentre_720p_out.gif)
-
 ## Environment
 ```text
 python==3
