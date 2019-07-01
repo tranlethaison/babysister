@@ -62,8 +62,8 @@ def read_rois(rois_file='rois.csv', delimiter=',', quotechar="'"):
             csvfile, fieldnames=fieldnames, 
             delimiter=delimiter, quotechar=quotechar,
             quoting=csv.QUOTE_NONNUMERIC)
-        # don't return field names
-        return map_type(list(reader)[1:])
+        
+        return map_type(list(reader)[1:])  # don't return field names
 
 
 def map_type(fields):

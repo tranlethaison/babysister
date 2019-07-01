@@ -1,103 +1,60 @@
-"""Wrapper for YOLOv3_TensorFlow
-"""
-import tensorflow as tf
-
-from .YOLOv3_TensorFlow.utils.misc_utils import parse_anchors, read_class_names
-from .YOLOv3_TensorFlow.utils.nms_utils import gpu_nms
-from .YOLOv3_TensorFlow.model import yolov3
+"""Additional logics for object detections"""
+import cv2 as cv
+import numpy as np
 
 
-class YOLOv3:
-    def __init__(
-        self, input_size, anchor_path, class_name_path, restore_path,
-        max_boxes=30, score_thresh=0.5, iou_thresh=0.5
-    ):
-        self.input_size = input_size or (608, 608)
-        self.anchor_path = anchor_path
-        self.class_name_path = class_name_path
-        self.restore_path = restore_path
+class Detector:
+    def __init__(self, core_detector):
+        """"""
+        self.core_detector = core_detector
 
-        self.max_boxes = max_boxes
-        self.score_thresh = score_thresh
-        self.iou_thresh = iou_thresh
+        h, w = core_detector.input_size
+        self.input_size = [w, h]
 
-        self.anchors = parse_anchors(self.anchor_path)
-        self.classes = read_class_names(self.class_name_path)
-        self.num_class = len(self.classes)
+    def detect(self, im, valid_classes, max_bb_size_ratio):
+        """"""
+        # input data
+        input_data = cv.resize(
+            im, dsize=tuple(self.input_size), interpolation=cv.INTER_LANCZOS4)
+        input_data = cv.cvtColor(input_data, cv.COLOR_BGR2RGB)
+        input_data = np.expand_dims(input_data, axis=0).astype(np.float32)
 
-        self.graph = tf.Graph() 
-        self.sess = self.get_sess()
+        # detect
+        boxes, scores, labels = self.core_detector.detect(input_data)
 
-    def get_sess(self):
-        with self.graph.as_default():
-            # YOLOv3 graph
-            self.input_data = tf.placeholder(
-                tf.float32, (None,*self.input_size,3), 'input_data')
+        # filter by class
+        if 'all' not in valid_classes:
+            tmp_boxes, tmp_scores, tmp_labels = [], [], []
+            for box, score, label in zip(boxes, scores, labels):
+                if self.core_detector.classes[label] in valid_classes:
+                    tmp_boxes.append(box)
+                    tmp_scores.append(score)
+                    tmp_labels.append(label)
+            boxes, scores, labels = np.array(tmp_boxes), tmp_scores, tmp_labels
 
-            yolo_model = yolov3(self.num_class, self.anchors)
-            with tf.variable_scope('yolov3'):
-                pred_feature_maps = yolo_model.forward(self.input_data, False)
-            #pred_feature_maps = yolo_model.forward(self.input_data, False)
+        # rescale boxes
+        if boxes.shape[0] > 0:
+            h, w = im.shape[:2]
+            size_ratio = np.divide([w, h], self.input_size)
+            boxes[:,0] *= size_ratio[0]
+            boxes[:,1] *= size_ratio[1]
+            boxes[:,2] *= size_ratio[0]
+            boxes[:,3] *= size_ratio[1]
 
-            # predict
-            pred_boxes, pred_confs, pred_probs = yolo_model.predict(pred_feature_maps)
-            pred_scores = pred_confs * pred_probs
+        #filter by box size wrt image size.
+        if np.greater([1,1], max_bb_size_ratio).any():
+            h, w = im.shape[:2]
+            tmp_boxes, tmp_scores, tmp_labels = [], [], []
+            for box, score, label in zip(boxes, scores, labels):
+                x0, y0, x1, y1 = box
+                size_ratio = np.divide([x1-x0, y1-y0], [w, h])
+                if np.greater(size_ratio, max_bb_size_ratio).any():
+                    continue
 
-            # non-maxima supression
-            self.boxes, self.scores, self.labels = \
-                gpu_nms(
-                    pred_boxes, pred_scores, self.num_class,
-                    self.max_boxes, self.score_thresh, self.iou_thresh)
+                tmp_boxes.append(box)
+                tmp_scores.append(score)
+                tmp_labels.append(label)
+            boxes, scores, labels = np.array(tmp_boxes), tmp_scores, tmp_labels
 
-            saver = tf.train.Saver()
-            sess = tf.Session()
-            saver.restore(sess, self.restore_path)
-            return sess
+        return boxes, scores, labels
 
-    def preprocess(self, input_data):
-        return input_data / 255.0
-
-    def detect(self, input_data):
-        return self.sess.run(
-            [self.boxes, self.scores, self.labels],
-            feed_dict={self.input_data: self.preprocess(input_data)})
-
-
-if __name__ == '__main__':
-    import cv2 as cv
-    import numpy as np
-    from pprint import pprint
-
-    input_size = (608, 608)
-    anchor_path = r"YOLOv3_TensorFlow/data/yolo_anchors.txt"
-    class_name_path = r"YOLOv3_TensorFlow/data/coco.names"
-    restore_path = r"YOLOv3_TensorFlow/data/darknet_weights/yolov3.ckpt"
-    yolov3 = YOLOv3(input_size, anchor_path, class_name_path, restore_path)
-
-    img = cv.imread("joseph_redmon.jpg")
-    input_data = cv.resize(img, dsize=input_size)
-    input_data = cv.cvtColor(input_data, cv.COLOR_RGB2BGR)
-    input_data = np.expand_dims(input_data, axis=0).astype(np.float32)
-
-    boxes, scores, labels = yolov3.detect(input_data)
-
-    # rescale boxes
-    size_ratio = np.divide(img.shape[:2], input_size)
-    boxes[:,0] *= size_ratio[1]
-    boxes[:,1] *= size_ratio[0]
-    boxes[:,2] *= size_ratio[1]
-    boxes[:,3] *= size_ratio[0]
-
-    print('boxes:')
-    pprint(boxes)
-    print('scores:\n', scores)
-    print('classes:\n', [yolov3.classes[l] for l in labels])
-
-    for box, label in zip(boxes, labels):
-        plot_one_box(
-            img, box, yolov3.classes[label],
-            color=yolov3.color_table[label], line_thickness=None)
-
-    cv.imshow('YOLO v3', img)
-    if cv.waitKey(0) & 0xFF == ord('q'):
-        cv.destroyAllWindows()
