@@ -7,9 +7,7 @@ class Detector:
     def __init__(self, core_detector):
         """"""
         self.core_detector = core_detector
-
-        h, w = core_detector.input_size
-        self.input_size = [w, h]
+        self.input_size = core_detector.input_size[::-1]
 
     def detect(self, im, valid_classes, max_bb_size_ratio):
         """"""

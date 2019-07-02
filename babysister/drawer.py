@@ -72,7 +72,7 @@ def put_line_bg(
     (w, h), baseLine = cv.getTextSize(txt, fontFace, fontScale, fontThickness)
     x, y = top_left
 
-    im[y:y + h + baseLine, x:x + w, :] = bg_color
+    im[y:y+h+baseLine, x:x+w, :] = bg_color
     cv.putText(
         im, txt, (x, y + h), 
         fontFace, fontScale, txt_color, fontThickness)

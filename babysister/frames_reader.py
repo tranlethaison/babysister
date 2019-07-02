@@ -18,7 +18,7 @@ class FramesReader:
             yield cv.imread(frame_path, cv.IMREAD_COLOR)
 
     def get_frame_size(self):
-        h, w, __ = cv.imread(self.frames_path[0], cv.IMREAD_COLOR)
+        h, w, __ = cv.imread(self.frames_path[0], cv.IMREAD_COLOR).shape
         return w, h
 
 
