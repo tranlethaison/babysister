@@ -1,13 +1,13 @@
 """"""
+import os
 import csv
 import time
 
 
 class Logger:
-    def __init__(self, save_to='log.csv', delimiter=',', quotechar="'"):
+    def __init__(self, save_to, header, delimiter=',', quotechar="'"):
         """"""
-        self.header = ['roi_id', 'n_objs', 'timestamp']
-        self.time_fmt = '%Y/%m/%d %H:%M:%S'
+        self.header = header
         self.save_to = save_to
         self.delimiter = delimiter
         self.quotechar = quotechar
@@ -15,38 +15,35 @@ class Logger:
 
     def open(self):
         """"""
-        self.fp = open(self.save_to, 'w+', newline='')
+        self.file = open(self.save_to, 'w+', newline='')
         self.writer = csv.DictWriter(
-            self.fp, fieldnames=self.header,
+            self.file, fieldnames=self.header,
             delimiter=self.delimiter, quotechar=self.quotechar,
             quoting=csv.QUOTE_NONNUMERIC)
 
     def close(self):
         """"""
-        self.fp.close()
+        self.file.close()
+
+    def save(self):
+        """"""
+        self.file.flush()
+        os.fsync(self.file.fileno())
 
     def write_header(self):
         """"""
-        self.info(self.header, do_format_time=False)
+        self.info(self.header)
 
-    def info(self, msg, do_format_time=True):
+    def info(self, msg):
         """"""
         if type(msg) is list:
             row = {}
             for field_name, value in zip(self.header, msg):
                 row[field_name] = value
-
         elif type(msg) is dict:
             row = msg
 
-        if do_format_time:
-            row['timestamp'] = self.format_time(row['timestamp'])
-
         self.writer.writerow(row)
-
-    def format_time(self, seconds):
-        """"""
-        return time.strftime(self.time_fmt, time.localtime(seconds))
 
     def __enter__(self):
         return self

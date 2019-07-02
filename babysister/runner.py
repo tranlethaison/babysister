@@ -11,8 +11,7 @@ from .sort_wrapper import SORT
 from .detector import Detector
 from .cv_logics import is_inside_roi
 from .roi_manager import create_roi, read_rois
-from .drawer import (
-    draw_detection, draw_tracking, draw_roi, put_line_bg)
+from .drawer import draw_detection, draw_tracking, draw_roi, put_line_bg
 from .logger import Logger
 from .fps_counter import FPSCounter
 from .prompter import query_yes_no
@@ -24,7 +23,7 @@ def run(
     input_size=[416,416], valid_classes=['all'],
     max_boxes=100, score_thresh=0.5, iou_thresh=0.5, max_bb_size_ratio=[1,1],
     save_to=None, do_show=True, do_show_class=True,
-    log_file='log.cvs'
+    log_file='log.cvs', log_dist=10, log_save_dist=60
 ):
     """"""
     if save_to:
@@ -47,6 +46,7 @@ def run(
         else:
             print("(ʘ‿ʘ)╯ Bye")
             exit(0)
+    # -------------------------------------------------------------------------
 
     frame_w, frame_h = framesReader.get_frame_size()
 
@@ -64,6 +64,7 @@ def run(
 
     tracker = SORT()
     # << Core 
+    # -------------------------------------------------------------------------
 
     if do_show:
         winname = 'Babysister {}'.format(input_size)
@@ -71,10 +72,11 @@ def run(
         # cv.moveWindow(winname, 0, 0)
         cv.waitKey(1)
 
-    log_dist = 5  # log distance (seconds)
-    seconds = time.time()
-    logger = Logger(save_to=log_file, delimiter=',', quotechar="'")
+    header = ['roi_id', 'n_objs', 'timestamp']
+    logger = Logger(log_file, header, delimiter=',', quotechar="'")
     logger.write_header()
+    log_seconds = log_save_seconds = time.time()
+    time_fmt = '%Y/%m/%d %H:%M:%S'
 
     fpsCounter = FPSCounter(limit=1)
 
@@ -94,7 +96,8 @@ def run(
         tracks = tracker.update(boxes, scores) 
 
         now = time.time()
-        do_log = now - seconds >= log_dist
+        do_log = now - log_seconds >= log_dist
+        do_log_save = now - log_save_seconds >= log_save_dist
 
         for roi in rois:
             roi_value = (roi['x'], roi['y'], roi['w'], roi['h'])
@@ -124,6 +127,7 @@ def run(
             is_full = ( 
                 roi['max_objects'] >= 0 
                 and n_detected_objs >= roi['max_objects'])
+            # -----------------------------------------------------------------
 
             encountered_objs_mask = np.asarray([False] * len(tracks))
             for id_ in range(len(tracks)):
@@ -135,12 +139,18 @@ def run(
 
             if len(encountered_objs_mask) > 0:
                 tracks = tracks[~encountered_objs_mask]
+            # -----------------------------------------------------------------
 
             draw_roi(frame, roi, n_detected_objs, is_full)
 
             if do_log or frame_num == 0: 
-                seconds = now
-                logger.info([roi['id'], n_detected_objs, seconds])
+                log_seconds = now
+                str_time = time.strftime(time_fmt, time.localtime(log_seconds))
+                logger.info([roi['id'], n_detected_objs, str_time])
+
+            if do_log_save:
+                log_save_seconds = now
+                logger.save()
 
         put_line_bg(
             frame, "FPS: {:.02f}".format(fpsCounter.get()), (frame_w-128,0))
