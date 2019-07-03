@@ -21,7 +21,7 @@ class Detector:
         boxes, scores, labels = self.core_detector.detect(input_data)
 
         # filter by class
-        if 'all' not in valid_classes:
+        if valid_classes is not None:
             tmp_boxes, tmp_scores, tmp_labels = [], [], []
             for box, score, label in zip(boxes, scores, labels):
                 if self.core_detector.classes[label] in valid_classes:

@@ -18,12 +18,22 @@ from .prompter import query_yes_no
 
     
 def run(
-    framesReader, do_try_reading=False,
+    framesReader, 
+    do_try_reading=False,
     rois_file='rois.csv',
-    input_size=[416,416], valid_classes=['all'],
-    max_boxes=100, score_thresh=0.5, iou_thresh=0.5, max_bb_size_ratio=[1,1],
-    save_to=None, do_show=True, do_show_class=True,
-    log_file='log.cvs', log_dist=10, log_save_dist=60
+    input_size=[416,416], 
+    valid_classes=None,
+    max_boxes=100, 
+    score_thresh=0.5, 
+    iou_thresh=0.5, 
+    max_bb_size_ratio=[1,1],
+    save_to=None, 
+    im_format="{:06d}.jpg",
+    log_file='log.cvs', 
+    log_dist=10, 
+    log_save_dist=60,
+    do_show=True, 
+    do_show_class=True
 ):
     """"""
     if save_to:
@@ -157,7 +167,7 @@ def run(
 
         if save_to:
             cv.imwrite(
-                os.path.join(save_to, "{:06d}.jpg".format(frame_num)), 
+                os.path.join(save_to, im_format.format(frame_num)), 
                 frame)
 
         if do_show:
