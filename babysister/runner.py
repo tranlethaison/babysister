@@ -33,7 +33,9 @@ def run(
     log_dist=10, 
     log_save_dist=60,
     do_show=True, 
-    do_show_class=True
+    do_show_class=True,
+    winname="BabySister",
+    session_config=None
 ):
     """"""
     if save_to:
@@ -69,18 +71,14 @@ def run(
         input_size = [frame_w, frame_h]
 
     # Core
-    yolov3 = YOLOv3(input_size[::-1], max_boxes, score_thresh, iou_thresh)
+    yolov3 = YOLOv3(
+        input_size[::-1], max_boxes, score_thresh, iou_thresh,
+        session_config=session_config)
     detector = Detector(yolov3)
 
     tracker = SORT()
     # << Core 
     # -------------------------------------------------------------------------
-
-    if do_show:
-        winname = 'Babysister {}'.format(input_size)
-        cv.namedWindow(winname)
-        # cv.moveWindow(winname, 0, 0)
-        cv.waitKey(1)
 
     header = ['roi_id', 'n_objs', 'timestamp']
     logger = Logger(log_file, header, delimiter=',', quotechar="'")
@@ -163,7 +161,7 @@ def run(
                 logger.save()
 
         put_line_bg(
-            frame, "FPS: {:.02f}".format(fpsCounter.get()), (frame_w-128,0))
+            frame, "FPS: {:.02f}".format(fpsCounter.get()), (frame_w//2, 0))
 
         if save_to:
             cv.imwrite(

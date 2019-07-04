@@ -112,21 +112,11 @@ def draw_detection(
     cv.rectangle(im, (x0,y0), (x1,y1), box_color, boxThickness)
 
     if do_show_class:
-        # score
-        txt = '{:.02f}'.format(score)
-
+        txt = '{:.02f} {}'.format(score, classes[label])
         (txt_w, txt_h), baseLine = \
             cv.getTextSize(txt, fontFace, fontScale, fontThickness)
-        top_left = np.asarray([x0, y0-txt_h-baseLine])
+        top_left = [x0, y0-txt_h-baseLine]
 
-        (txt_w, txt_h), baseLine = put_line_bg(
-            im, txt, top_left,
-            box_color, txt_color,
-            fontFace, fontScale, fontThickness)
-
-        # class
-        txt = classes[label]
-        top_left += [txt_w+2, 0]
         put_line_bg(
             im, txt, top_left,
             box_color, txt_color,
@@ -163,14 +153,15 @@ def draw_roi(
     x1, y1 = roi['x'] + roi['w'], roi['y'] + roi['h']
     cv.rectangle(im, (x0,y0), (x1,y1), box_color, boxThickness)
 
+    lines = ['Detected: {}'.format(n_detected_objs)]
+    if roi['max_objects'] >= 0:
+        lines += [
+            'Max objects: {}'.format(roi['max_objects']),
+            'Is full: {}'.format(is_full)]
+
     eol = '\n'
-    txt = eol.join([
-        'Detected: {}'.format(n_detected_objs),
-        'Max objects: {}'.format(roi['max_objects']),
-        'Is full: {}'.format(is_full)
-    ])
     put_lines_bg(
-        im, txt, (x0,y0), eol,
+        im, eol.join(lines), (x0,y0), eol,
         box_color, txt_color,
         fontFace, fontScale, fontThickness)
 

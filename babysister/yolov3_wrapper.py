@@ -17,7 +17,8 @@ class YOLOv3:
         max_boxes=30, score_thresh=0.5, iou_thresh=0.5,
         anchor_path=_anchor_path,
         class_name_path=_class_name_path,
-        restore_path=_restore_path
+        restore_path=_restore_path,
+        session_config=None
     ):
         """
         """
@@ -28,6 +29,7 @@ class YOLOv3:
         self.anchor_path = anchor_path
         self.class_name_path = class_name_path
         self.restore_path = restore_path
+        self.session_config = session_config
 
         self.anchors = parse_anchors(self.anchor_path)
         self.classes = read_class_names(self.class_name_path)
@@ -56,7 +58,7 @@ class YOLOv3:
                 self.max_boxes, self.score_thresh, self.iou_thresh)
 
             saver = tf.train.Saver()
-            sess = tf.Session()
+            sess = tf.Session(config=self.session_config)
             saver.restore(sess, self.restore_path)
             return sess
 
