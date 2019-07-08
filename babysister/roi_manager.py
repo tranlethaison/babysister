@@ -12,7 +12,7 @@ fields = {
     'y' : int, 
     'w' : int, 
     'h' : int, 
-    'max_objects' : int
+    'max_objs' : int
 }
 
 
@@ -33,6 +33,9 @@ def create_roi(values):
 def select_rois_over_image(im, save_to, delimiter, quotechar):
     """"""
     rois = cv.selectROIs('Select ROIs', im)
+    if len(rois) == 0:
+        h, w, __ = im.shape
+        rois = [[0, 0, w, h]]
 
     with open(save_to, 'w+', newline='') as csvfile:
         writer = csv.DictWriter(

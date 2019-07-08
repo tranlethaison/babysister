@@ -30,6 +30,8 @@ def run(
     save_to=None, 
     im_format="{:06d}.jpg",
     log_file='log.cvs', 
+    delimiter=',', 
+    quotechar='"',
     log_dist=10, 
     log_save_dist=60,
     do_show=True, 
@@ -62,10 +64,7 @@ def run(
 
     frame_w, frame_h = framesReader.get_frame_size()
 
-    rois = read_rois(rois_file, delimiter=',', quotechar="'")
-    if len(rois) == 0:
-        values = [0, 0, 0, frame_w, frame_h, -1]
-        rois = [create_roi(values)]
+    rois = read_rois(rois_file, delimiter, quotechar)
 
     if input_size is None:
         input_size = [frame_w, frame_h]
@@ -80,14 +79,14 @@ def run(
     # << Core 
     # -------------------------------------------------------------------------
 
-    header = ['roi_id', 'n_objs', 'timestamp']
-    logger = Logger(log_file, header, delimiter=',', quotechar="'")
+    header = ['id', 'n_objs', 'timestamp']
+    logger = Logger(log_file, header, delimiter, quotechar)
     logger.write_header()
     log_seconds = log_save_seconds = time.time()
-    time_fmt = '%Y/%m/%d %H:%M:%S'
 
     fpsCounter = FPSCounter(limit=1)
 
+    print("Detecting and tracking. Press 'q' at {} to quit.".format(winname))
     frame_num = int(0)
     while 1:
         try:
@@ -133,8 +132,8 @@ def run(
                 labels = np.asarray(labels)[~encountered_objs_mask]
 
             is_full = ( 
-                roi['max_objects'] >= 0 
-                and n_detected_objs >= roi['max_objects'])
+                roi['max_objs'] >= 0 
+                and n_detected_objs >= roi['max_objs'])
             # -----------------------------------------------------------------
 
             encountered_objs_mask = np.asarray([False] * len(tracks))
@@ -153,8 +152,7 @@ def run(
 
             if do_log or frame_num == 0: 
                 log_seconds = now
-                str_time = time.strftime(time_fmt, time.localtime(log_seconds))
-                logger.info([roi['id'], n_detected_objs, str_time])
+                logger.info([roi['id'], n_detected_objs, log_seconds])
 
             if do_log_save:
                 log_save_seconds = now

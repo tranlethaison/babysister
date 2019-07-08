@@ -5,30 +5,30 @@ import time
 
 
 class Logger:
-    def __init__(self, save_to, header, delimiter=',', quotechar="'"):
+    def __init__(self, log_file, header, delimiter=',', quotechar="'"):
         """"""
         self.header = header
-        self.save_to = save_to
+        self.log_file = log_file
         self.delimiter = delimiter
         self.quotechar = quotechar
         self.open()
 
     def open(self):
         """"""
-        self.file = open(self.save_to, 'w+', newline='')
+        self.fo = open(self.log_file, 'w+', newline='')
         self.writer = csv.DictWriter(
-            self.file, fieldnames=self.header,
+            self.fo, fieldnames=self.header,
             delimiter=self.delimiter, quotechar=self.quotechar,
             quoting=csv.QUOTE_NONNUMERIC)
 
     def close(self):
         """"""
-        self.file.close()
+        self.fo.close()
 
     def save(self):
         """"""
-        self.file.flush()
-        os.fsync(self.file.fileno())
+        self.fo.flush()
+        os.fsync(self.fo.fileno())
 
     def write_header(self):
         """"""

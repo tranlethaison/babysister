@@ -154,9 +154,9 @@ def draw_roi(
     cv.rectangle(im, (x0,y0), (x1,y1), box_color, boxThickness)
 
     lines = ['Detected: {}'.format(n_detected_objs)]
-    if roi['max_objects'] >= 0:
+    if roi['max_objs'] >= 0:
         lines += [
-            'Max objects: {}'.format(roi['max_objects']),
+            'Max objects: {}'.format(roi['max_objs']),
             'Is full: {}'.format(is_full)]
 
     eol = '\n'
