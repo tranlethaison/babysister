@@ -10,7 +10,7 @@ from .yolov3_wrapper import YOLOv3
 from .sort_wrapper import SORT
 from .detector import Detector
 from .cv_logics import is_inside_roi
-from .roi_manager import create_roi, read_rois
+from .roi_manager import RoiManager 
 from .drawer import draw_detection, draw_tracking, draw_roi, put_line_bg
 from .logger import Logger
 from .fps_counter import FPSCounter
@@ -64,7 +64,7 @@ def run(
 
     frame_w, frame_h = framesReader.get_frame_size()
 
-    rois = read_rois(rois_file, delimiter, quotechar)
+    rois = RoiManager.read_rois(rois_file, delimiter, quotechar)
 
     if input_size is None:
         input_size = [frame_w, frame_h]
