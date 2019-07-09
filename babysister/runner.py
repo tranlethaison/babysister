@@ -65,7 +65,6 @@ def run(
         header = ['id', 'n_objs', 'timestamp']
         logger = Logger(log_file, header, delimiter, quotechar)
         logger.write_header()
-    log_seconds = log_save_seconds = time.time()
     # -------------------------------------------------------------------------
 
     frame_w, frame_h = framesReader.get_frame_size()
@@ -88,6 +87,7 @@ def run(
     fpsCounter = FPSCounter(limit=1)
 
     print("Detecting and tracking. Press 'q' at {} to quit.".format(winname))
+
     frame_num = int(0)
     while 1:
         try:
@@ -102,12 +102,17 @@ def run(
             detector.detect(frame, valid_classes, max_bb_size_ratio)
 
         tracks = tracker.update(boxes, scores) 
+        
+        now = int(time.time())
+        if frame_num == 0:
+            log_timestamp = now + log_dist
+            log_save_timestamp = now + log_save_dist
 
-        now = time.time()
         do_log = (
             log_dist < 0
-            or now - log_seconds >= log_dist)
-        do_log_save = now - log_save_seconds >= log_save_dist
+            or now > log_timestamp
+        )
+        do_log_save = now > log_save_timestamp
 
         for roi in rois:
             roi_value = (roi['x'], roi['y'], roi['w'], roi['h'])
@@ -148,13 +153,17 @@ def run(
 
             draw_roi(frame, roi, n_detected_objs)
 
-            if (do_log or frame_num == 0) and log_file: 
-                log_seconds = now
-                logger.info([roi['id'], n_detected_objs, log_seconds])
+            if do_log and log_file: 
+                logger.info(
+                    [roi['id'], n_detected_objs, log_timestamp])
 
-            if do_log_save and log_file:
-                log_save_seconds = now
-                logger.save()
+        if do_log and log_file: 
+            log_timestamp += log_dist
+
+        if do_log_save and log_file:
+            # logger.info([-1, -1, log_save_timestamp])
+            logger.save()
+            log_save_timestamp += log_save_dist 
 
         put_line_bg(
             frame, "FPS: {:.02f}".format(fpsCounter.get()), (frame_w//2, 0))
