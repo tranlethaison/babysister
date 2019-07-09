@@ -6,21 +6,23 @@ import cv2 as cv
 from babysister.prompter import query_yes_no
 
 
-class RoiManager():
+class ROIManager():
     """"""
+    # field_namel : default_value
     fields = {
-        'id' : int, 
-        'x' : int, 
-        'y' : int, 
-        'w' : int, 
-        'h' : int
+        'id' : None, 
+        'x' : None, 
+        'y' : None, 
+        'w' : None, 
+        'h' : None
     }
 
     @classmethod
-    def _map_type(cls, roi):
-        for fieldname, fieldtype in cls.fields.items():
-            roi[fieldname] = fieldtype(roi[fieldname])
-        return roi
+    def add_default(cls, roi):
+        """"""
+        for key, val in cls.fields.items():
+            if key not in roi:
+                roi[key] = val
 
     @classmethod
     def create_roi(cls, values):
@@ -28,11 +30,15 @@ class RoiManager():
         roi = {}
         for fieldname, value in zip(cls.fields.keys(), values):
             roi[fieldname] = value
-        return cls._map_type(roi)
+        return roi
 
     @classmethod
     def select_rois_over_image(cls, im, save_to, delimiter, quotechar):
         """"""
+        print("------------------------------------------------------------")
+        print("If there are no ROIs being selected,")
+        print("Pressing ESC will create 1 ROI with the size of whole image.")
+        print("------------------------------------------------------------")
         rois = cv.selectROIs('Select ROIs', im)
         if len(rois) == 0:
             h, w, __ = im.shape
@@ -45,16 +51,14 @@ class RoiManager():
                 quoting=csv.QUOTE_NONNUMERIC)
             writer.writeheader()
 
-            for roi_n, roi in enumerate(rois):
-                x, y, w, h = roi
-                values = [roi_n, x, y, w, h, -1]
-                row = cls.create_roi(values)
+            print("ROIs data:")
+            for roi_n, roi_val in enumerate(rois):
+                x, y, w, h = roi_val
+                roi = cls.create_roi([roi_n, x, y, w, h])
+                cls.add_default(roi)
 
-                writer.writerow(row)
-                print(row)
-                #cv.imshow(str(roi), im[y:y+h, x:x+w])
-            #cv.waitKey(0)
-            #cv.destroyAllWindows() 
+                writer.writerow(roi)
+                print(roi)
 
     @classmethod
     def select_rois(
@@ -91,6 +95,5 @@ class RoiManager():
                 delimiter=delimiter, quotechar=quotechar,
                 quoting=csv.QUOTE_NONNUMERIC)
 
-            rois = list(reader)[1:]  # don't include field names
-            return list(map(cls._map_type, rois))
+            return list(reader)[1:]  # don't include field names
 

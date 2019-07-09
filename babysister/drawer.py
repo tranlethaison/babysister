@@ -149,8 +149,8 @@ def draw_roi(
     boxThickness=_boxThickness
 ):
     """"""
-    x0, y0 = roi['x'], roi['y']
-    x1, y1 = roi['x'] + roi['w'], roi['y'] + roi['h']
+    x0, y0 = int(roi['x']), int(roi['y'])
+    x1, y1 = int(roi['x'] + roi['w']), int(roi['y'] + roi['h'])
     cv.rectangle(im, (x0,y0), (x1,y1), box_color, boxThickness)
 
     txt = 'Detected: {}'.format(n_detected_objs)

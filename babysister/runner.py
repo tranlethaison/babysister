@@ -1,4 +1,4 @@
-"""Main process"""
+"""Example usage"""
 import os
 import time
 
@@ -10,7 +10,7 @@ from .yolov3_wrapper import YOLOv3
 from .sort_wrapper import SORT
 from .detector import Detector
 from .cv_logics import is_inside_roi
-from .roi_manager import RoiManager 
+from .roi_manager import ROIManager 
 from .drawer import draw_detection, draw_tracking, draw_roi, put_line_bg
 from .logger import Logger
 from .fps_counter import FPSCounter
@@ -47,7 +47,7 @@ def run(
             if do_ow:
                 pass
             else:
-                print("(ʘ‿ʘ)╯ Bye")
+                print("(ʘ‿ʘ)╯ Bye!")
                 exit(0)
         else:
             os.makedirs(save_to)
@@ -58,13 +58,13 @@ def run(
         if do_ow:
             pass
         else:
-            print("(ʘ‿ʘ)╯ Bye")
+            print("(ʘ‿ʘ)╯ Bye!")
             exit(0)
     # -------------------------------------------------------------------------
 
     frame_w, frame_h = framesReader.get_frame_size()
 
-    rois = RoiManager.read_rois(rois_file, delimiter, quotechar)
+    rois = ROIManager.read_rois(rois_file, delimiter, quotechar)
 
     if input_size is None:
         input_size = [frame_w, frame_h]
@@ -174,5 +174,5 @@ def run(
     if do_show:
         cv.destroyAllWindows()
     
-    print("( ͡° ͜ʖ ͡°)_/¯ Thanks for using")
+    print("( ͡° ͜ʖ ͡°)_/¯ Thanks for using!")
 
