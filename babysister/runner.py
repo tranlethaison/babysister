@@ -29,15 +29,15 @@ def run(
     max_bb_size_ratio=[1,1],
     save_to=None, 
     im_format="{:06d}.jpg",
-    log_file='log.cvs', 
+    log_file=None, 
     delimiter=',', 
     quotechar='"',
-    log_dist=10, 
+    log_dist=-1, 
     log_save_dist=60,
     do_show=True, 
     do_show_class=True,
     winname="BabySister",
-    session_config=None
+    session_config=None,
 ):
     """"""
     if save_to:
@@ -52,14 +52,20 @@ def run(
         else:
             os.makedirs(save_to)
 
-    if os.path.isfile(log_file):
-        do_ow = query_yes_no(
-            '{} already exist. Overwrite?'.format(log_file), default="no")
-        if do_ow:
-            pass
-        else:
-            print("(ʘ‿ʘ)╯ Bye!")
-            exit(0)
+    if log_file:
+        if os.path.isfile(log_file):
+            do_ow = query_yes_no(
+                '{} already exist. Overwrite?'.format(log_file), default="no")
+            if do_ow:
+                pass
+            else:
+                print("(ʘ‿ʘ)╯ Bye!")
+                exit(0)
+
+        header = ['id', 'n_objs', 'timestamp']
+        logger = Logger(log_file, header, delimiter, quotechar)
+        logger.write_header()
+    log_seconds = log_save_seconds = time.time()
     # -------------------------------------------------------------------------
 
     frame_w, frame_h = framesReader.get_frame_size()
@@ -78,11 +84,6 @@ def run(
     tracker = SORT()
     # << Core 
     # -------------------------------------------------------------------------
-
-    header = ['id', 'n_objs', 'timestamp']
-    logger = Logger(log_file, header, delimiter, quotechar)
-    logger.write_header()
-    log_seconds = log_save_seconds = time.time()
 
     fpsCounter = FPSCounter(limit=1)
 
@@ -103,7 +104,9 @@ def run(
         tracks = tracker.update(boxes, scores) 
 
         now = time.time()
-        do_log = now - log_seconds >= log_dist
+        do_log = (
+            log_dist < 0
+            or now - log_seconds >= log_dist)
         do_log_save = now - log_save_seconds >= log_save_dist
 
         for roi in rois:
@@ -145,18 +148,18 @@ def run(
 
             draw_roi(frame, roi, n_detected_objs)
 
-            if do_log or frame_num == 0: 
+            if (do_log or frame_num == 0) and log_file: 
                 log_seconds = now
                 logger.info([roi['id'], n_detected_objs, log_seconds])
 
-            if do_log_save:
+            if do_log_save and log_file:
                 log_save_seconds = now
                 logger.save()
 
         put_line_bg(
             frame, "FPS: {:.02f}".format(fpsCounter.get()), (frame_w//2, 0))
 
-        if save_to:
+        if do_log and save_to:
             cv.imwrite(
                 os.path.join(save_to, im_format.format(frame_num)), 
                 frame)
@@ -169,7 +172,8 @@ def run(
         fpsCounter.tick()
         frame_num += 1
 
-    logger.close()
+    if log_file:
+        logger.close()
 
     if do_show:
         cv.destroyAllWindows()
