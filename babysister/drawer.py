@@ -143,7 +143,7 @@ def draw_tracking(
 
 
 def draw_roi(
-    im, roi, n_detected_objs, is_full,
+    im, roi, n_detected_objs,
     box_color=_bg_color, txt_color=_txt_color,
     fontFace=_fontFace, fontScale=_fontScale, fontThickness=_fontThickness,
     boxThickness=_boxThickness
@@ -153,15 +153,9 @@ def draw_roi(
     x1, y1 = roi['x'] + roi['w'], roi['y'] + roi['h']
     cv.rectangle(im, (x0,y0), (x1,y1), box_color, boxThickness)
 
-    lines = ['Detected: {}'.format(n_detected_objs)]
-    if roi['max_objs'] >= 0:
-        lines += [
-            'Max objects: {}'.format(roi['max_objs']),
-            'Is full: {}'.format(is_full)]
-
-    eol = '\n'
-    put_lines_bg(
-        im, eol.join(lines), (x0,y0), eol,
+    txt = 'Detected: {}'.format(n_detected_objs)
+    put_line_bg(
+        im, txt, (x0,y0),
         box_color, txt_color,
         fontFace, fontScale, fontThickness)
 

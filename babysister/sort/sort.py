@@ -23,12 +23,30 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 from skimage import io
-from sklearn.utils.linear_assignment_ import linear_assignment
-#from scipy.optimize import linear_sum_assignment
+#from sklearn.utils.linear_assignment_ import linear_assignment
+from scipy.optimize import linear_sum_assignment
 import glob
 import time
 import argparse
 from filterpy.kalman import KalmanFilter
+
+
+def linear_assignment(X):
+  """Fix DeprecationWarning: 
+    The linear_assignment function is deprecated in 0.21 
+    and will be removed from 0.23. 
+    Use scipy.optimize.linear_sum_assignment instead
+  """
+  row_ind, col_ind = linear_sum_assignment(X)
+  indices = np.asarray(
+    [[r, c] for r, c in zip(row_ind, col_ind)],
+    dtype=int)
+
+  # Make sure the array is 2D with 2 columns.
+  # This is needed when dealing with an empty list
+  indices.shape = (-1, 2)
+  return indices
+
 
 @jit
 def iou(bb_test,bb_gt):
@@ -145,16 +163,7 @@ def associate_detections_to_trackers(detections,trackers,iou_threshold = 0.3):
   for d,det in enumerate(detections):
     for t,trk in enumerate(trackers):
       iou_matrix[d,t] = iou(det,trk)
-
-  # linear_assignment is deprecated in 0.21
-  # replace with linear_sum_assignment
   matched_indices = linear_assignment(-iou_matrix)
-  #row_ind, col_ind = linear_sum_assignment(-iou_matrix)
-  #matched_indices = np.asarray([
-  #  [r, c]
-  #  for r, c in zip(row_ind, col_ind)
-  #])
-  # ---------------------------------------------------------------------------
 
   unmatched_detections = []
   for d,det in enumerate(detections):

@@ -111,7 +111,6 @@ def run(
 
             # Keep track of
             n_detected_objs = 0  # number of objs inside this ROI
-            is_full = False  # is this ROI full
 
             # Encountered objs mask, for filter out later
             encountered_objs_mask = np.asarray([False] * len(boxes))
@@ -130,10 +129,6 @@ def run(
                 boxes = np.asarray(boxes)[~encountered_objs_mask]
                 scores = np.asarray(scores)[~encountered_objs_mask]
                 labels = np.asarray(labels)[~encountered_objs_mask]
-
-            is_full = ( 
-                roi['max_objs'] >= 0 
-                and n_detected_objs >= roi['max_objs'])
             # -----------------------------------------------------------------
 
             encountered_objs_mask = np.asarray([False] * len(tracks))
@@ -148,7 +143,7 @@ def run(
                 tracks = tracks[~encountered_objs_mask]
             # -----------------------------------------------------------------
 
-            draw_roi(frame, roi, n_detected_objs, is_full)
+            draw_roi(frame, roi, n_detected_objs)
 
             if do_log or frame_num == 0: 
                 log_seconds = now
