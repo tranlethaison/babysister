@@ -15,7 +15,7 @@ from .drawer import draw_detection, draw_tracking, draw_roi, put_line_bg
 from .logger import Logger
 from .fps_counter import FPSCounter
 from .prompter import query_yes_no
-from .timming import StopWatch
+from .time_utils import StopWatch, get_str_localtime
 
     
 def run(
@@ -39,7 +39,7 @@ def run(
     do_show=True, 
     do_show_class=True,
     winname="Babysister",
-    session_config=None,
+    session_config=None
 ):
     """"""
     if save_to:
@@ -164,7 +164,7 @@ def run(
             draw_roi(frame, roi, n_detected_objs)
 
             if do_log and log_file: 
-                str_time = time.strftime(time_fmt, time.localtime(now)) 
+                str_time = get_str_localtime(time_fmt, now)
                 logger.info(
                     [im_file_name, str_time, int(roi['id']), n_detected_objs])
 
