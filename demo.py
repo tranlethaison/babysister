@@ -20,14 +20,18 @@ def frames(
     log_file=None, 
     delimiter=',', 
     quotechar='"',
+    time_fmt='%Y/%m/%d %H:%M:%S',
     log_dist=-1, 
     log_save_dist=60,
     do_show=True, 
-    do_show_class=True
+    do_show_class=True,
+    winname="Babysister"
 ):
     """Demo for sequence of frames"""
+    framesReader = frames_reader.ImagesReader(frames_dir, "jpg")
+
     runner.run(
-        frames_reader.ImagesReader(frames_dir, "jpg"),
+        framesReader,
         do_try_reading,
         rois_file,
         input_size,
@@ -41,10 +45,12 @@ def frames(
         log_file,
         delimiter, 
         quotechar,
+        time_fmt,
         log_dist,
         log_save_dist,
         do_show,
-        do_show_class
+        do_show_class,
+        winname
     )
 
 
@@ -63,14 +69,18 @@ def video(
     log_file=None, 
     delimiter=',', 
     quotechar='"',
+    time_fmt='%Y/%m/%d %H:%M:%S',
     log_dist=-1, 
     log_save_dist=60,
     do_show=True, 
-    do_show_class=True
+    do_show_class=True,
+    winname="Babysister"
 ):
     """Demo for video"""
+    framesReader = frames_reader.VideoReader(video_path)
+
     runner.run(
-        frames_reader.VideoReader(video_path),
+        framesReader,
         do_try_reading,
         rois_file,
         input_size,
@@ -84,10 +94,12 @@ def video(
         log_file,
         delimiter, 
         quotechar,
+        time_fmt,
         log_dist,
         log_save_dist,
         do_show,
-        do_show_class
+        do_show_class,
+        winname
     )
 
 

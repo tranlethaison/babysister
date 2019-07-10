@@ -8,7 +8,7 @@ from babysister.prompter import query_yes_no
 
 class ROIManager():
     """"""
-    # field_namel : default_value
+    # field_name : default_value
     fields = {
         'id' : None, 
         'x' : None, 
