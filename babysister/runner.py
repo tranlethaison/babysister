@@ -88,12 +88,11 @@ def run(
 
     print("Detecting and tracking. Press 'q' at {} to quit.".format(winname))
     fpsCounter = FPSCounter(limit=1)
-    stopwatch = StopWatch()
+    stopwatch = StopWatch(precision=0)
 
-    always_log = log_dist < 0
+    do_log_every_frame = log_dist < 0
     n_log_writing = 0
     exp_n_log_writing = log_save_dist // log_dist
-    stopwatch.start()
 
     frame_num = int(0)
     while 1:
@@ -104,11 +103,14 @@ def run(
             if do_try_reading:
                 continue
             break
-        
-        now = stopwatch.time()
         im_file_name = im_format.format(frame_num)
+        
+        if frame_num == 0:
+            now = stopwatch.start()
+        else:
+            now = stopwatch.time()
 
-        if always_log:
+        if do_log_every_frame:
             do_log = True
             do_log_save = stopwatch.elapsed() >= log_save_dist
         else:
@@ -169,13 +171,14 @@ def run(
                     [im_file_name, str_time, int(roi['id']), n_detected_objs])
 
         if do_log:
-            if not always_log:
+            if not do_log_every_frame:
                 stopwatch.start()
 
         if do_log_save and log_file:
-            # logger.info([None, now, None, None])
+            # str_time = get_str_localtime(time_fmt, now)
+            # logger.info([None, str_time, None, None])
             logger.save()
-            if always_log:
+            if do_log_every_frame:
                 stopwatch.start()
 
         put_line_bg(
