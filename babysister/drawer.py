@@ -64,30 +64,30 @@ def create_unique_color_uchar(tag, hue_step=0.41):
 
 
 def put_line_bg(
-    im, txt, top_left, 
+    im, line, top_left, 
     bg_color=_bg_color, txt_color=_txt_color,
     fontFace=_fontFace, fontScale=_fontScale, fontThickness=_fontThickness
 ):
     """Put a line of text with background"""
-    (w, h), baseLine = cv.getTextSize(txt, fontFace, fontScale, fontThickness)
+    (w, h), baseLine = cv.getTextSize(line, fontFace, fontScale, fontThickness)
     x, y = top_left
 
     im[y:y+h+baseLine, x:x+w, :] = bg_color
     cv.putText(
-        im, txt, (x, y + h), 
+        im, line, (x, y + h), 
         fontFace, fontScale, txt_color, fontThickness)
 
     return (w, h), baseLine
 
 
 def put_lines_bg(
-    im, txt, top_left, eol='\n',
+    im, lines, top_left,
     bg_color=_bg_color, txt_color=_txt_color,
     fontFace=_fontFace, fontScale=_fontScale, fontThickness=_fontThickness
 ):
-    """Put lines of text with background. Text will be splited with 'eol'"""
-    lines = txt.split(eol)
-    
+    """Put lines of text with background
+    lines: list of line in string
+    """
     top_left = np.asarray(top_left, np.int32)
     for line in lines:
         (w, h), baseLine = put_line_bg(
@@ -112,13 +112,13 @@ def draw_detection(
     cv.rectangle(im, (x0,y0), (x1,y1), box_color, boxThickness)
 
     if do_show_class:
-        txt = '{:.02f} {}'.format(score, classes[label])
+        line = '{:.02f} {}'.format(score, classes[label])
         (txt_w, txt_h), baseLine = \
-            cv.getTextSize(txt, fontFace, fontScale, fontThickness)
+            cv.getTextSize(line, fontFace, fontScale, fontThickness)
         top_left = [x0, y0-txt_h-baseLine]
 
         put_line_bg(
-            im, txt, top_left,
+            im, line, top_left,
             box_color, txt_color,
             fontFace, fontScale, fontThickness)
 
@@ -153,9 +153,12 @@ def draw_roi(
     x1, y1 = int(roi['x'] + roi['w']), int(roi['y'] + roi['h'])
     cv.rectangle(im, (x0,y0), (x1,y1), box_color, boxThickness)
 
-    txt = 'Detected: {}'.format(n_detected_objs)
-    put_line_bg(
-        im, txt, (x0,y0),
+    lines = ["ROI {}".format(roi['id'])]
+    if n_detected_objs >= 0:
+        lines.append("Detected: {}".format(n_detected_objs))
+
+    put_lines_bg(
+        im, lines, (x0,y0),
         box_color, txt_color,
         fontFace, fontScale, fontThickness)
 

@@ -23,6 +23,7 @@ def frames(
     time_fmt='%Y/%m/%d %H:%M:%S',
     log_dist=-1, 
     log_save_dist=60,
+    do_detect=True,
     do_show=True, 
     do_show_class=True,
     winname="Babysister"
@@ -48,6 +49,7 @@ def frames(
         time_fmt,
         log_dist,
         log_save_dist,
+        do_detect,
         do_show,
         do_show_class,
         winname
@@ -72,6 +74,7 @@ def video(
     time_fmt='%Y/%m/%d %H:%M:%S',
     log_dist=-1, 
     log_save_dist=60,
+    do_detect=True,
     do_show=True, 
     do_show_class=True,
     winname="Babysister"
@@ -97,6 +100,7 @@ def video(
         time_fmt,
         log_dist,
         log_save_dist,
+        do_detect,
         do_show,
         do_show_class,
         winname
