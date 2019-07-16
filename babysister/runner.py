@@ -35,12 +35,13 @@ def run(
     quotechar='"',
     time_fmt='%Y/%m/%d %H:%M:%S',
     log_dist=-1, 
-    log_save_dist=60,
-    do_detect=True,
+    log_save_dist=10,
     do_show=True, 
     do_show_class=True,
     winname="Babysister",
-    session_config=None
+    session_config=None,
+    do_detect=True,
+    max_uptime=-1
 ):
     """"""
     if save_to:
@@ -90,7 +91,9 @@ def run(
 
     print("Detecting and tracking. Press 'q' at {} to quit.".format(winname))
     fpsCounter = FPSCounter(limit=1)
-    stopwatch = StopWatch(precision=0)
+    log_sw = StopWatch(precision=0)
+    log_save_sw = StopWatch(precision=0)
+    uptime_sw = StopWatch(precision=0)
 
     do_log_every_frame = log_dist < 0
     n_log_writing = 0
@@ -108,21 +111,28 @@ def run(
         im_file_name = im_format.format(frame_num)
         
         if frame_num == 0:
-            now = stopwatch.start()
+            now = log_sw.start()
+            log_save_sw.start_at(now)
+            uptime_sw.start_at(now)
         else:
-            now = stopwatch.time()
+            now = log_sw.time()
 
         if do_log_every_frame:
             do_log = True
-            do_log_save = stopwatch.elapsed() >= log_save_dist
+            do_log_save = log_save_sw.elapsed() >= log_save_dist
         else:
-            do_log = stopwatch.elapsed() >= log_dist
+            do_log = log_sw.elapsed() >= log_dist
             if do_log:
                 n_log_writing += 1
 
             do_log_save = n_log_writing == exp_n_log_writing 
             if do_log_save:
                 n_log_writing = 0
+
+        if max_uptime < 0:
+            do_end = False
+        else:
+            do_end = uptime_sw.elapsed() >= max_uptime
 
         if do_detect:
             boxes, scores, labels = \
@@ -173,19 +183,22 @@ def run(
 
             if do_log and log_file: 
                 str_time = get_str_localtime(time_fmt, now)
-                logger.info(
-                    [im_file_name, str_time, int(roi['id']), n_detected_objs])
+                log_line = \
+                    [im_file_name, str_time, int(roi['id']), n_detected_objs]
+                logger.info(log_line)
+                print(log_line)
 
         if do_log:
             if not do_log_every_frame:
-                stopwatch.start()
+                log_sw.start()
 
         if do_log_save and log_file:
-            # str_time = get_str_localtime(time_fmt, now)
+            str_time = get_str_localtime(time_fmt, now)
             # logger.info([None, str_time, None, None])
             logger.save()
             if do_log_every_frame:
-                stopwatch.start()
+                log_save_sw.start()
+            print("log saved at", str_time)
 
         put_line_bg(
             frame, "FPS: {:.02f}".format(fpsCounter.get()), (frame_w//2, 0))
@@ -197,6 +210,11 @@ def run(
             cv.imshow(winname, frame)
             if cv.waitKey(1) & 0xFF == ord('q'):
                 break
+
+        if do_end:
+            str_time = get_str_localtime(time_fmt, now)
+            print("max_uptime elapsed, end process at", str_time)
+            break
 
         fpsCounter.tick()
         frame_num += 1

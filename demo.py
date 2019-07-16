@@ -22,11 +22,13 @@ def frames(
     quotechar='"',
     time_fmt='%Y/%m/%d %H:%M:%S',
     log_dist=-1, 
-    log_save_dist=60,
-    do_detect=True,
+    log_save_dist=10,
     do_show=True, 
     do_show_class=True,
-    winname="Babysister"
+    winname="Babysister",
+    session_config=None,
+    do_detect=True,
+    max_uptime=-1
 ):
     """Demo for sequence of frames"""
     framesReader = frames_reader.ImagesReader(frames_dir, "jpg")
@@ -49,10 +51,12 @@ def frames(
         time_fmt,
         log_dist,
         log_save_dist,
-        do_detect,
         do_show,
         do_show_class,
-        winname
+        winname,
+        session_config,
+        do_detect,
+        max_uptime
     )
 
 
@@ -73,11 +77,13 @@ def video(
     quotechar='"',
     time_fmt='%Y/%m/%d %H:%M:%S',
     log_dist=-1, 
-    log_save_dist=60,
-    do_detect=True,
+    log_save_dist=10,
     do_show=True, 
     do_show_class=True,
-    winname="Babysister"
+    winname="Babysister",
+    session_config=None,
+    do_detect=True,
+    max_uptime=-1
 ):
     """Demo for video"""
     framesReader = frames_reader.VideoReader(video_path)
@@ -100,10 +106,12 @@ def video(
         time_fmt,
         log_dist,
         log_save_dist,
-        do_detect,
         do_show,
         do_show_class,
-        winname
+        winname,
+        session_config,
+        do_detect,
+        max_uptime
     )
 
 

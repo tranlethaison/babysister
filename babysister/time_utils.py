@@ -6,14 +6,22 @@ import datetime
 class StopWatch():
     def __init__(self, precision=7):
         self.precision = precision
+        self.fmt = "{:." + str(precision) + "f}"
+
+    def format_epoch_time(self, epoch_time):
+        return float(self.fmt.format(epoch_time))
 
     def time(self):
         now = time.time()
-        fmt = "{:." + str(self.precision) + "f}"
-        return float(fmt.format(now))
+        return self.format_epoch_time(now)
 
     def start(self):
         self.start_ = self.split_ = self.time()
+        self.is_paused = False
+        return self.start_
+
+    def start_at(self, epoch_time):
+        self.start_ = self.split_ = self.format_epoch_time(epoch_time)
         self.is_paused = False
         return self.start_
 
