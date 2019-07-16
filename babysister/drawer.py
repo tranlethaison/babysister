@@ -153,7 +153,7 @@ def draw_roi(
     x1, y1 = int(roi['x'] + roi['w']), int(roi['y'] + roi['h'])
     cv.rectangle(im, (x0,y0), (x1,y1), box_color, boxThickness)
 
-    lines = ["ROI {}".format(roi['id'])]
+    lines = ["ROI {}".format(int(roi['id']))]
     if n_detected_objs >= 0:
         lines.append("Detected: {}".format(n_detected_objs))
 

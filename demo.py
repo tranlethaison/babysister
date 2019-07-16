@@ -27,7 +27,6 @@ def frames(
     do_show_class=True,
     winname="Babysister",
     session_config=None,
-    do_detect=True,
     max_uptime=-1
 ):
     """Demo for sequence of frames"""
@@ -55,7 +54,6 @@ def frames(
         do_show_class,
         winname,
         session_config,
-        do_detect,
         max_uptime
     )
 
@@ -82,7 +80,6 @@ def video(
     do_show_class=True,
     winname="Babysister",
     session_config=None,
-    do_detect=True,
     max_uptime=-1
 ):
     """Demo for video"""
@@ -110,7 +107,6 @@ def video(
         do_show_class,
         winname,
         session_config,
-        do_detect,
         max_uptime
     )
 

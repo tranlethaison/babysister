@@ -40,7 +40,6 @@ def run(
     do_show_class=True,
     winname="Babysister",
     session_config=None,
-    do_detect=True,
     max_uptime=-1
 ):
     """"""
@@ -78,14 +77,13 @@ def run(
     if input_size is None:
         input_size = [frame_w, frame_h]
 
-    if do_detect:
-        # Core
-        yolov3 = YOLOv3(
-            input_size[::-1], max_boxes, score_thresh, iou_thresh,
-            session_config=session_config)
-        detector = Detector(yolov3)
+    # Core
+    yolov3 = YOLOv3(
+        input_size[::-1], max_boxes, score_thresh, iou_thresh,
+        session_config=session_config)
+    detector = Detector(yolov3)
 
-        tracker = SORT()
+    tracker = SORT()
     # << Core 
     # -------------------------------------------------------------------------
 
@@ -134,50 +132,46 @@ def run(
         else:
             do_end = uptime_sw.elapsed() >= max_uptime
 
-        if do_detect:
-            boxes, scores, labels = \
-                detector.detect(frame, valid_classes, max_bb_size_ratio)
-            tracks = tracker.update(boxes, scores) 
+        boxes, scores, labels = \
+            detector.detect(frame, valid_classes, max_bb_size_ratio)
+        tracks = tracker.update(boxes, scores) 
 
         for roi in rois:
             roi_value = (roi['x'], roi['y'], roi['w'], roi['h'])
 
-            if do_detect:
-                # Keep track of
-                n_detected_objs = int(0)  # number of objs inside this ROI
+            # Keep track of
+            n_detected_objs = int(0)  # number of objs inside this ROI
 
-                # Encountered objs mask, for filter out later
-                encountered_objs_mask = np.asarray([False] * len(boxes))
-                for id_ in range(len(boxes)):
-                    if not is_inside_roi(roi_value, boxes[id_]):
-                        continue
+            # Encountered objs mask, for filter out later
+            encountered_objs_mask = np.asarray([False] * len(boxes))
+            for id_ in range(len(boxes)):
+                if not is_inside_roi(roi_value, boxes[id_]):
+                    continue
 
-                    n_detected_objs += 1
-                    encountered_objs_mask[id_] = True
-                    draw_detection(
-                        frame,
-                        boxes[id_], scores[id_], labels[id_], yolov3.classes,
-                        do_show_class)
+                n_detected_objs += 1
+                encountered_objs_mask[id_] = True
+                draw_detection(
+                    frame,
+                    boxes[id_], scores[id_], labels[id_], yolov3.classes,
+                    do_show_class)
 
-                if len(encountered_objs_mask) > 0:
-                    boxes = np.asarray(boxes)[~encountered_objs_mask]
-                    scores = np.asarray(scores)[~encountered_objs_mask]
-                    labels = np.asarray(labels)[~encountered_objs_mask]
-                # -----------------------------------------------------------------
+            if len(encountered_objs_mask) > 0:
+                boxes = np.asarray(boxes)[~encountered_objs_mask]
+                scores = np.asarray(scores)[~encountered_objs_mask]
+                labels = np.asarray(labels)[~encountered_objs_mask]
+            # -----------------------------------------------------------------
 
-                encountered_objs_mask = np.asarray([False] * len(tracks))
-                for id_ in range(len(tracks)):
-                    if not is_inside_roi(roi_value, tracks[id_][:4]):
-                        continue
+            encountered_objs_mask = np.asarray([False] * len(tracks))
+            for id_ in range(len(tracks)):
+                if not is_inside_roi(roi_value, tracks[id_][:4]):
+                    continue
 
-                    encountered_objs_mask[id_] = True
-                    draw_tracking(frame, tracks[id_])
+                encountered_objs_mask[id_] = True
+                draw_tracking(frame, tracks[id_])
 
-                if len(encountered_objs_mask) > 0:
-                    tracks = tracks[~encountered_objs_mask]
-                # -----------------------------------------------------------------
-            else:
-                n_detected_objs = int(-1)  # number of objs inside this ROI
+            if len(encountered_objs_mask) > 0:
+                tracks = tracks[~encountered_objs_mask]
+            # -----------------------------------------------------------------
 
             draw_roi(frame, roi, n_detected_objs)
 
