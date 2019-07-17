@@ -27,7 +27,8 @@ def frames(
     do_show_class=True,
     winname="Babysister",
     session_config=None,
-    max_uptime=-1
+    max_uptime=-1,
+    do_prompt=True
 ):
     """Demo for sequence of frames"""
     framesReader = frames_reader.ImagesReader(frames_dir, "jpg")
@@ -54,7 +55,8 @@ def frames(
         do_show_class,
         winname,
         session_config,
-        max_uptime
+        max_uptime,
+        do_prompt
     )
 
 
@@ -80,7 +82,8 @@ def video(
     do_show_class=True,
     winname="Babysister",
     session_config=None,
-    max_uptime=-1
+    max_uptime=-1,
+    do_prompt=True
 ):
     """Demo for video"""
     framesReader = frames_reader.VideoReader(video_path)
@@ -107,7 +110,8 @@ def video(
         do_show_class,
         winname,
         session_config,
-        max_uptime
+        max_uptime,
+        do_prompt
     )
 
 

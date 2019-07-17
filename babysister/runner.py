@@ -40,11 +40,12 @@ def run(
     do_show_class=True,
     winname="Babysister",
     session_config=None,
-    max_uptime=-1
+    max_uptime=-1,
+    do_prompt=True
 ):
     """"""
     if save_to:
-        if os.path.isdir(save_to):
+        if do_prompt and os.path.isdir(save_to):
             do_ow = query_yes_no(
                 '{} already exist. Overwrite?'.format(save_to), default="no")
             if do_ow:
@@ -53,10 +54,10 @@ def run(
                 print("(ʘ‿ʘ)╯ Bye!")
                 exit(0)
         else:
-            os.makedirs(save_to)
+            os.makedirs(save_to, exist_ok=True)
 
     if log_file:
-        if os.path.isfile(log_file):
+        if do_prompt and os.path.isfile(log_file):
             do_ow = query_yes_no(
                 '{} already exist. Overwrite?'.format(log_file), default="no")
             if do_ow:
