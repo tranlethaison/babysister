@@ -68,6 +68,7 @@ def run(
 
         header = ['im_file_name', 'timestamp', 'roi_id', 'n_objs']
         logger = Logger(log_file, header, delimiter, quotechar)
+        logger.open(mode="w+")
         logger.write_header()
     # -------------------------------------------------------------------------
 
@@ -181,7 +182,7 @@ def run(
                 log_line = \
                     [im_file_name, str_time, int(roi['id']), n_detected_objs]
                 logger.info(log_line)
-                print(log_line)
+                # print(log_line)
 
         if do_log:
             if not do_log_every_frame:
@@ -193,7 +194,7 @@ def run(
             logger.save()
             if do_log_every_frame:
                 log_save_sw.start()
-            print("log saved at", str_time)
+            # print("log saved at", str_time)
 
         put_line_bg(
             frame, "FPS: {:.02f}".format(fpsCounter.get()), (frame_w//2, 0))
