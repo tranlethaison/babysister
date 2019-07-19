@@ -93,14 +93,23 @@ def run(
     fpsCounter = FPSCounter(limit=1)
     log_sw = StopWatch(precision=0)
     log_save_sw = StopWatch(precision=0)
-    uptime_sw = StopWatch(precision=0)
 
     do_log_every_frame = log_dist < 0
+
     n_log_writing = 0
     exp_n_log_writing = log_save_dist // log_dist
 
+    n_save_times = 0
+    exp_n_save_times = max_uptime // log_save_dist
+
     frame_num = int(0)
     while 1:
+        if frame_num == 0:
+            now = log_sw.start()
+            log_save_sw.start_at(now)
+        else:
+            now = log_sw.time()
+
         try:
             frame = framesReader.read()
         except FrameReadError as err:
@@ -110,13 +119,6 @@ def run(
             break
         im_file_name = im_format.format(frame_num)
         
-        if frame_num == 0:
-            now = log_sw.start()
-            log_save_sw.start_at(now)
-            uptime_sw.start_at(now)
-        else:
-            now = log_sw.time()
-
         if do_log_every_frame:
             do_log = True
             do_log_save = log_save_sw.elapsed() >= log_save_dist
@@ -132,7 +134,9 @@ def run(
         if max_uptime < 0:
             do_end = False
         else:
-            do_end = uptime_sw.elapsed() >= max_uptime
+            if do_log_save:
+                n_save_times += 1
+            do_end = n_save_times == exp_n_save_times
 
         boxes, scores, labels = \
             detector.detect(frame, valid_classes, max_bb_size_ratio)
