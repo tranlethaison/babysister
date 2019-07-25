@@ -61,17 +61,19 @@ $ python convert_weight.py
   Select ROIs:
 
 ```shell
-$ python select_rois.py demo/TownCentre_720p.mp4 --is-video 1 --save-to rois.csv
+$ python select_rois.py demo/TownCentre_720p.mp4 --is-video 1 --save-to demo/rois.csv
 ```
 
   Run:
 
 ```shell
 $ python demo.py video demo/TownCentre_720p.mp4 \
-    --rois-file rois.csv \
-    --valid-classes ['person'] \
-    --save-to frames/ \
-    --log-file log.csv
+    --input-size [640,360] \
+    --score-thresh 0.25 \
+    --valid-classes ["person"] \
+    --rois-file demo/rois.csv \
+    --save-to demo/result/frames/ \
+    --log-file demo/result/log.csv
 ```
 
 * * *
