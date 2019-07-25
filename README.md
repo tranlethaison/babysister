@@ -2,7 +2,6 @@
 
 -   [Babysister](#babysister)
     -   [Introduction](#introduction)
-    -   [Environment](#environment)
     -   [Weights conversion](#weights-conversion)
     -   [Usage](#usage)
     -   [Demo](#demo)
@@ -14,21 +13,6 @@
 
   Objects detection and online tracking.  
   Plug-in style code, can be easily adapted to different purposes.
-
-* * *
-
-## Environment
-
-  python==3  
-  tensorflow>=1.8.0  
-  opencv-python  
-  opencv-contrib-python  
-  scikit-learn  
-  scikit-image  
-  filterpy  
-  scipy  
-  numba  
-  fire  
 
 * * *
 

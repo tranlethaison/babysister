@@ -1,0 +1,9 @@
+tensorflow
+opencv-python  
+opencv-contrib-python  
+scikit-learn  
+scikit-image  
+filterpy  
+scipy  
+numba  
+fire  
