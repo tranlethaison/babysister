@@ -1,7 +1,9 @@
 import time
 
+
 class FPSCounter:
     """"""
+
     def __init__(self, limit):
         """"""
         self.limit = limit
@@ -25,4 +27,3 @@ class FPSCounter:
     def get(self):
         """"""
         return self.fps
-

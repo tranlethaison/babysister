@@ -10,44 +10,45 @@ from .yolov3_wrapper import YOLOv3
 from .sort_wrapper import SORT
 from .detector import Detector
 from .cv_logics import is_inside_roi
-from .roi_manager import ROIManager 
+from .roi_manager import ROIManager
 from .drawer import draw_detection, draw_tracking, draw_roi, put_line_bg
 from .logger import Logger
 from .fps_counter import FPSCounter
 from .prompter import query_yes_no
 from .time_utils import StopWatch, get_str_localtime
 
-    
+
 def run(
-    framesReader, 
+    framesReader,
     do_try_reading=False,
-    rois_file='rois.csv',
-    input_size=[416,416], 
+    rois_file="rois.csv",
+    input_size=[416, 416],
     valid_classes=None,
-    max_boxes=100, 
-    score_thresh=0.5, 
-    iou_thresh=0.5, 
-    max_bb_size_ratio=[1,1],
-    save_to=None, 
+    max_boxes=100,
+    score_thresh=0.5,
+    iou_thresh=0.5,
+    max_bb_size_ratio=[1, 1],
+    save_to=None,
     im_format="{:06d}.jpg",
-    log_file=None, 
-    delimiter=',', 
+    log_file=None,
+    delimiter=",",
     quotechar='"',
-    time_fmt='%Y/%m/%d %H:%M:%S',
-    log_dist=-1, 
+    time_fmt="%Y/%m/%d %H:%M:%S",
+    log_dist=-1,
     log_save_dist=10,
-    do_show=True, 
+    do_show=True,
     do_show_class=True,
     winname="Babysister",
     session_config=None,
     max_uptime=-1,
-    do_prompt=True
+    do_prompt=True,
 ):
     """"""
     if save_to:
         if do_prompt and os.path.isdir(save_to):
             do_ow = query_yes_no(
-                '{} already exist. Overwrite?'.format(save_to), default="no")
+                "{} already exist. Overwrite?".format(save_to), default="no"
+            )
             if do_ow:
                 pass
             else:
@@ -59,14 +60,15 @@ def run(
     if log_file:
         if do_prompt and os.path.isfile(log_file):
             do_ow = query_yes_no(
-                '{} already exist. Overwrite?'.format(log_file), default="no")
+                "{} already exist. Overwrite?".format(log_file), default="no"
+            )
             if do_ow:
                 pass
             else:
                 print("(ʘ‿ʘ)╯ Bye!")
                 exit(0)
 
-        header = ['im_file_name', 'timestamp', 'roi_id', 'n_objs']
+        header = ["im_file_name", "timestamp", "roi_id", "n_objs"]
         logger = Logger(log_file, header, delimiter, quotechar)
         logger.open(mode="w+")
         logger.write_header()
@@ -81,12 +83,16 @@ def run(
 
     # Core
     yolov3 = YOLOv3(
-        input_size[::-1], max_boxes, score_thresh, iou_thresh,
-        session_config=session_config)
+        input_size[::-1],
+        max_boxes,
+        score_thresh,
+        iou_thresh,
+        session_config=session_config,
+    )
     detector = Detector(yolov3)
 
     tracker = SORT()
-    # << Core 
+    # << Core
     # -------------------------------------------------------------------------
 
     print("Detecting and tracking. Press 'q' at {} to quit.".format(winname))
@@ -118,7 +124,7 @@ def run(
                 continue
             break
         im_file_name = im_format.format(frame_num)
-        
+
         if do_log_every_frame:
             do_log = True
             do_log_save = log_save_sw.elapsed() >= log_save_dist
@@ -127,7 +133,7 @@ def run(
             if do_log:
                 n_log_writing += 1
 
-            do_log_save = n_log_writing == exp_n_log_writing 
+            do_log_save = n_log_writing == exp_n_log_writing
             if do_log_save:
                 n_log_writing = 0
 
@@ -138,12 +144,11 @@ def run(
                 n_save_times += 1
             do_end = n_save_times == exp_n_save_times
 
-        boxes, scores, labels = \
-            detector.detect(frame, valid_classes, max_bb_size_ratio)
-        tracks = tracker.update(boxes, scores) 
+        boxes, scores, labels = detector.detect(frame, valid_classes, max_bb_size_ratio)
+        tracks = tracker.update(boxes, scores)
 
         for roi in rois:
-            roi_value = (roi['x'], roi['y'], roi['w'], roi['h'])
+            roi_value = (roi["x"], roi["y"], roi["w"], roi["h"])
 
             # Keep track of
             n_detected_objs = int(0)  # number of objs inside this ROI
@@ -158,8 +163,12 @@ def run(
                 encountered_objs_mask[id_] = True
                 draw_detection(
                     frame,
-                    boxes[id_], scores[id_], labels[id_], yolov3.classes,
-                    do_show_class)
+                    boxes[id_],
+                    scores[id_],
+                    labels[id_],
+                    yolov3.classes,
+                    do_show_class,
+                )
 
             if len(encountered_objs_mask) > 0:
                 boxes = np.asarray(boxes)[~encountered_objs_mask]
@@ -181,10 +190,9 @@ def run(
 
             draw_roi(frame, roi, n_detected_objs)
 
-            if do_log and log_file: 
+            if do_log and log_file:
                 str_time = get_str_localtime(time_fmt, now)
-                log_line = \
-                    [im_file_name, str_time, int(roi['id']), n_detected_objs]
+                log_line = [im_file_name, str_time, int(roi["id"]), n_detected_objs]
                 logger.info(log_line)
                 # print(log_line)
 
@@ -200,15 +208,14 @@ def run(
                 log_save_sw.start()
             # print("log saved at", str_time)
 
-        put_line_bg(
-            frame, "FPS: {:.02f}".format(fpsCounter.get()), (frame_w//2, 0))
+        put_line_bg(frame, "FPS: {:.02f}".format(fpsCounter.get()), (frame_w // 2, 0))
 
         if do_log and save_to:
             cv.imwrite(os.path.join(save_to, im_file_name), frame)
 
         if do_show:
             cv.imshow(winname, frame)
-            if cv.waitKey(1) & 0xFF == ord('q'):
+            if cv.waitKey(1) & 0xFF == ord("q"):
                 break
 
         if do_end:
@@ -224,6 +231,5 @@ def run(
 
     if do_show:
         cv.destroyAllWindows()
-    
-    print("( ͡° ͜ʖ ͡°)_/¯ Thanks for using!")
 
+    print("( ͡° ͜ʖ ͡°)_/¯ Thanks for using!")

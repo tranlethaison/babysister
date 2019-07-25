@@ -8,27 +8,27 @@ from babysister import runner
 def frames(
     frames_dir,
     do_try_reading=False,
-    rois_file='rois.csv',
-    input_size=[416,416], 
+    rois_file="rois.csv",
+    input_size=[416, 416],
     valid_classes=None,
-    max_boxes=100, 
-    score_thresh=0.5, 
-    iou_thresh=0.5, 
-    max_bb_size_ratio=[1,1],
-    save_to=None, 
+    max_boxes=100,
+    score_thresh=0.5,
+    iou_thresh=0.5,
+    max_bb_size_ratio=[1, 1],
+    save_to=None,
     im_format="{:06d}.jpg",
-    log_file=None, 
-    delimiter=',', 
+    log_file=None,
+    delimiter=",",
     quotechar='"',
-    time_fmt='%Y/%m/%d %H:%M:%S',
-    log_dist=-1, 
+    time_fmt="%Y/%m/%d %H:%M:%S",
+    log_dist=-1,
     log_save_dist=10,
-    do_show=True, 
+    do_show=True,
     do_show_class=True,
     winname="Babysister",
     session_config=None,
     max_uptime=-1,
-    do_prompt=True
+    do_prompt=True,
 ):
     """Demo for sequence of frames"""
     framesReader = frames_reader.ImagesReader(frames_dir, "jpg")
@@ -46,7 +46,7 @@ def frames(
         save_to,
         im_format,
         log_file,
-        delimiter, 
+        delimiter,
         quotechar,
         time_fmt,
         log_dist,
@@ -56,34 +56,34 @@ def frames(
         winname,
         session_config,
         max_uptime,
-        do_prompt
+        do_prompt,
     )
 
 
 def video(
     video_path,
     do_try_reading=False,
-    rois_file='rois.csv',
-    input_size=[416,416], 
+    rois_file="rois.csv",
+    input_size=[416, 416],
     valid_classes=None,
-    max_boxes=100, 
-    score_thresh=0.5, 
-    iou_thresh=0.5, 
-    max_bb_size_ratio=[1,1],
-    save_to=None, 
+    max_boxes=100,
+    score_thresh=0.5,
+    iou_thresh=0.5,
+    max_bb_size_ratio=[1, 1],
+    save_to=None,
     im_format="{:06d}.jpg",
-    log_file=None, 
-    delimiter=',', 
+    log_file=None,
+    delimiter=",",
     quotechar='"',
-    time_fmt='%Y/%m/%d %H:%M:%S',
-    log_dist=-1, 
+    time_fmt="%Y/%m/%d %H:%M:%S",
+    log_dist=-1,
     log_save_dist=10,
-    do_show=True, 
+    do_show=True,
     do_show_class=True,
     winname="Babysister",
     session_config=None,
     max_uptime=-1,
-    do_prompt=True
+    do_prompt=True,
 ):
     """Demo for video"""
     framesReader = frames_reader.VideoReader(video_path)
@@ -101,7 +101,7 @@ def video(
         save_to,
         im_format,
         log_file,
-        delimiter, 
+        delimiter,
         quotechar,
         time_fmt,
         log_dist,
@@ -111,10 +111,9 @@ def video(
         winname,
         session_config,
         max_uptime,
-        do_prompt
+        do_prompt,
     )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     fire.Fire()
-

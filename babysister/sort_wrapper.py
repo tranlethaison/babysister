@@ -26,4 +26,3 @@ class SORT:
         """
         detections = self._gen_detections(boxes, scores)
         return self.tracker.update(detections)
-

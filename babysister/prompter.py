@@ -25,14 +25,15 @@ def query_yes_no(question, default="yes"):
         choice = input(question + prompt).lower().strip()
 
         try:
-            if default is not None and choice == '':
+            if default is not None and choice == "":
                 return strtobool(default)
             else:
                 return strtobool(choice)
         except ValueError as err:
             print(err)
-            print("Please respond (case insensitive):\n",
+            print(
+                "Please respond (case insensitive):\n",
                 "\ty, yes, t, true, on or 1 for yes\n",
-                "\tn, no, f, false, off or 0 for no")
+                "\tn, no, f, false, off or 0 for no",
+            )
             continue
-

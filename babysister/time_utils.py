@@ -3,7 +3,7 @@ import time
 import datetime
 
 
-class StopWatch():
+class StopWatch:
     def __init__(self, precision=7):
         self.precision = precision
         self.fmt = "{:." + str(precision) + "f}"
@@ -29,7 +29,7 @@ class StopWatch():
         if not self.is_paused:
             self.pause_ = self.time()
             self.is_paused = True
-        
+
     def resume(self):
         if self.is_paused:
             pause_elapsed = self.time() - self.pause_
@@ -55,11 +55,10 @@ class StopWatch():
 
 def get_str_localtime(time_fmt, epoch_time):
     """"""
-    return time.strftime(time_fmt, time.localtime(epoch_time)) 
+    return time.strftime(time_fmt, time.localtime(epoch_time))
 
 
 def get_epoch_time(time_fmt, str_time):
     """"""
     timetuple = datetime.datetime.strptime(str_time, time_fmt).timetuple()
     return time.mktime(timetuple)
-

@@ -34,8 +34,8 @@ def create_unique_color_float(tag, hue_step=0.41):
         RGB color code in range [0, 1]
 
     """
-    h, v = (tag * hue_step) % 1, 1. - (int(tag * hue_step) % 4) / 5.
-    r, g, b = colorsys.hsv_to_rgb(h, 1., v)
+    h, v = (tag * hue_step) % 1, 1.0 - (int(tag * hue_step) % 4) / 5.0
+    r, g, b = colorsys.hsv_to_rgb(h, 1.0, v)
     return r, g, b
 
 
@@ -60,30 +60,38 @@ def create_unique_color_uchar(tag, hue_step=0.41):
 
     """
     r, g, b = create_unique_color_float(tag, hue_step)
-    return int(255*r), int(255*g), int(255*b)
+    return int(255 * r), int(255 * g), int(255 * b)
 
 
 def put_line_bg(
-    im, line, top_left, 
-    bg_color=_bg_color, txt_color=_txt_color,
-    fontFace=_fontFace, fontScale=_fontScale, fontThickness=_fontThickness
+    im,
+    line,
+    top_left,
+    bg_color=_bg_color,
+    txt_color=_txt_color,
+    fontFace=_fontFace,
+    fontScale=_fontScale,
+    fontThickness=_fontThickness,
 ):
     """Put a line of text with background"""
     (w, h), baseLine = cv.getTextSize(line, fontFace, fontScale, fontThickness)
     x, y = top_left
 
-    im[y:y+h+baseLine, x:x+w, :] = bg_color
-    cv.putText(
-        im, line, (x, y + h), 
-        fontFace, fontScale, txt_color, fontThickness)
+    im[y : y + h + baseLine, x : x + w, :] = bg_color
+    cv.putText(im, line, (x, y + h), fontFace, fontScale, txt_color, fontThickness)
 
     return (w, h), baseLine
 
 
 def put_lines_bg(
-    im, lines, top_left,
-    bg_color=_bg_color, txt_color=_txt_color,
-    fontFace=_fontFace, fontScale=_fontScale, fontThickness=_fontThickness
+    im,
+    lines,
+    top_left,
+    bg_color=_bg_color,
+    txt_color=_txt_color,
+    fontFace=_fontFace,
+    fontScale=_fontScale,
+    fontThickness=_fontThickness,
 ):
     """Put lines of text with background
     lines: list of line in string
@@ -91,74 +99,87 @@ def put_lines_bg(
     top_left = np.asarray(top_left, np.int32)
     for line in lines:
         (w, h), baseLine = put_line_bg(
-            im, line, top_left,
-            bg_color, txt_color,
-            fontFace, fontScale, fontThickness)
-        top_left += [0, h+baseLine]
+            im, line, top_left, bg_color, txt_color, fontFace, fontScale, fontThickness
+        )
+        top_left += [0, h + baseLine]
 
     return (w, h), baseLine
 
 
 def draw_detection(
-    im, box, score, label, classes, do_show_class=True,
-    box_color=None, txt_color=_txt_color,
-    fontFace=_fontFace, fontScale=_fontScale, fontThickness=_fontThickness,
-    boxThickness=_boxThickness
+    im,
+    box,
+    score,
+    label,
+    classes,
+    do_show_class=True,
+    box_color=None,
+    txt_color=_txt_color,
+    fontFace=_fontFace,
+    fontScale=_fontScale,
+    fontThickness=_fontThickness,
+    boxThickness=_boxThickness,
 ):
     """"""
     box_color = box_color or create_unique_color_uchar(label)
 
     x0, y0, x1, y1 = map(int, box)
-    cv.rectangle(im, (x0,y0), (x1,y1), box_color, boxThickness)
+    cv.rectangle(im, (x0, y0), (x1, y1), box_color, boxThickness)
 
     if do_show_class:
-        line = '{:.02f} {}'.format(score, classes[label])
-        (txt_w, txt_h), baseLine = \
-            cv.getTextSize(line, fontFace, fontScale, fontThickness)
-        top_left = [x0, y0-txt_h-baseLine]
+        line = "{:.02f} {}".format(score, classes[label])
+        (txt_w, txt_h), baseLine = cv.getTextSize(
+            line, fontFace, fontScale, fontThickness
+        )
+        top_left = [x0, y0 - txt_h - baseLine]
 
         put_line_bg(
-            im, line, top_left,
-            box_color, txt_color,
-            fontFace, fontScale, fontThickness)
+            im, line, top_left, box_color, txt_color, fontFace, fontScale, fontThickness
+        )
 
 
 def draw_tracking(
-    im, track,
-    box_color=None, txt_color=_txt_color,
-    fontFace=_fontFace, fontScale=_fontScale, fontThickness=_fontThickness,
-    boxThickness=_boxThickness
+    im,
+    track,
+    box_color=None,
+    txt_color=_txt_color,
+    fontFace=_fontFace,
+    fontScale=_fontScale,
+    fontThickness=_fontThickness,
+    boxThickness=_boxThickness,
 ):
     """"""
     id_ = int(track[4])
     box_color = box_color or create_unique_color_uchar(id_)
 
     x0, y0, x1, y1 = map(int, track[:4])
-    cv.rectangle(im, (x0,y0), (x1,y1), box_color, boxThickness)
+    cv.rectangle(im, (x0, y0), (x1, y1), box_color, boxThickness)
 
     put_line_bg(
-        im, str(id_), (x0,y0),
-        box_color, txt_color,
-        fontFace, fontScale, fontThickness)
+        im, str(id_), (x0, y0), box_color, txt_color, fontFace, fontScale, fontThickness
+    )
 
 
 def draw_roi(
-    im, roi, n_detected_objs,
-    box_color=_bg_color, txt_color=_txt_color,
-    fontFace=_fontFace, fontScale=_fontScale, fontThickness=_fontThickness,
-    boxThickness=_boxThickness
+    im,
+    roi,
+    n_detected_objs,
+    box_color=_bg_color,
+    txt_color=_txt_color,
+    fontFace=_fontFace,
+    fontScale=_fontScale,
+    fontThickness=_fontThickness,
+    boxThickness=_boxThickness,
 ):
     """"""
-    x0, y0 = int(roi['x']), int(roi['y'])
-    x1, y1 = int(roi['x'] + roi['w']), int(roi['y'] + roi['h'])
-    cv.rectangle(im, (x0,y0), (x1,y1), box_color, boxThickness)
+    x0, y0 = int(roi["x"]), int(roi["y"])
+    x1, y1 = int(roi["x"] + roi["w"]), int(roi["y"] + roi["h"])
+    cv.rectangle(im, (x0, y0), (x1, y1), box_color, boxThickness)
 
-    lines = ["ROI {}".format(int(roi['id']))]
+    lines = ["ROI {}".format(int(roi["id"]))]
     if n_detected_objs >= 0:
         lines.append("Detected: {}".format(n_detected_objs))
 
     put_lines_bg(
-        im, lines, (x0,y0),
-        box_color, txt_color,
-        fontFace, fontScale, fontThickness)
-
+        im, lines, (x0, y0), box_color, txt_color, fontFace, fontScale, fontThickness
+    )

@@ -13,12 +13,15 @@ _restore_path = "babysister/YOLOv3_TensorFlow/data/darknet_weights/yolov3.ckpt"
 
 class YOLOv3:
     def __init__(
-        self, input_size=[416,416], 
-        max_boxes=30, score_thresh=0.5, iou_thresh=0.5,
+        self,
+        input_size=[416, 416],
+        max_boxes=30,
+        score_thresh=0.5,
+        iou_thresh=0.5,
         anchor_path=_anchor_path,
         class_name_path=_class_name_path,
         restore_path=_restore_path,
-        session_config=None
+        session_config=None,
     ):
         """
         """
@@ -35,18 +38,18 @@ class YOLOv3:
         self.classes = read_class_names(self.class_name_path)
         self.num_class = len(self.classes)
 
-        self.graph = tf.Graph() 
+        self.graph = tf.Graph()
         self.sess = self._get_sess()
 
     def _get_sess(self):
         with self.graph.as_default():
             self.input_data = tf.placeholder(
-                tf.float32, (None,*self.input_size,3), "input_data")
+                tf.float32, (None, *self.input_size, 3), "input_data"
+            )
 
             yolo_model = yolov3(self.num_class, self.anchors)
             with tf.variable_scope("yolov3"):
-                feature_maps = \
-                    yolo_model.forward(self.input_data, is_training=False)
+                feature_maps = yolo_model.forward(self.input_data, is_training=False)
 
             # predict
             boxes, confs, probs = yolo_model.predict(feature_maps)
@@ -54,8 +57,13 @@ class YOLOv3:
 
             # non-maxima supression
             self.boxes, self.scores, self.labels = gpu_nms(
-                boxes, scores, self.num_class,
-                self.max_boxes, self.score_thresh, self.iou_thresh)
+                boxes,
+                scores,
+                self.num_class,
+                self.max_boxes,
+                self.score_thresh,
+                self.iou_thresh,
+            )
 
             saver = tf.train.Saver()
             sess = tf.Session(config=self.session_config)
@@ -70,5 +78,5 @@ class YOLOv3:
         """
         return self.sess.run(
             [self.boxes, self.scores, self.labels],
-            feed_dict={self.input_data: self._preprocess(input_data)})
-
+            feed_dict={self.input_data: self._preprocess(input_data)},
+        )

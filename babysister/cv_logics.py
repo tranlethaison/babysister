@@ -2,13 +2,12 @@
 
 
 def is_inside_roi(roi_value, box):
-    '''Is bouding box inside ROI
+    """Is bouding box inside ROI
     If its centroid is inside ROI, it also is.
-    '''
+    """
     x, y, w, h = roi_value
     x0, y0, x1, y1 = box
-    return (x <= (x1 + x0) / 2 <= x + w
-        and y <= (y1 + y0) / 2 <= y + h)
+    return x <= (x1 + x0) / 2 <= x + w and y <= (y1 + y0) / 2 <= y + h
 
 
 def iou(bbox1, bbox2):
@@ -47,4 +46,3 @@ def iou(bbox1, bbox2):
     size_union = size_1 + size_2 - size_intersection
 
     return size_intersection / size_union
-

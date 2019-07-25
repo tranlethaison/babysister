@@ -6,13 +6,7 @@ from collections import OrderedDict
 
 
 class Logger:
-    def __init__(
-        self, 
-        log_file,
-        header,
-        delimiter=',',
-        quotechar="'",
-    ):
+    def __init__(self, log_file, header, delimiter=",", quotechar="'"):
         """"""
         assert os.path.splitext(log_file)[-1] == ".csv"
 
@@ -23,13 +17,14 @@ class Logger:
 
     def open(self, mode="w+"):
         """open for writing"""
-        self.csvfile = open(self.log_file, mode, newline='')
+        self.csvfile = open(self.log_file, mode, newline="")
         self.writer = csv.DictWriter(
-            self.csvfile, 
+            self.csvfile,
             fieldnames=self.header,
-            delimiter=self.delimiter, 
+            delimiter=self.delimiter,
             quotechar=self.quotechar,
-            quoting=csv.QUOTE_NONNUMERIC)
+            quoting=csv.QUOTE_NONNUMERIC,
+        )
 
     def close(self):
         """"""
@@ -50,8 +45,7 @@ class Logger:
             row = {}
             for field_name, value in zip(self.header, msg):
                 row[field_name] = value
-        elif (type(msg) is dict
-        or type(msg) is OrderedDict):
+        elif type(msg) is dict or type(msg) is OrderedDict:
             row = msg
 
         self.writer.writerow(row)
@@ -64,12 +58,12 @@ class Logger:
 
     def read(self):
         """"""
-        with open(self.log_file, newline='') as csvfile:
+        with open(self.log_file, newline="") as csvfile:
             reader = csv.DictReader(
-                csvfile, 
+                csvfile,
                 fieldnames=self.header,
-                delimiter=self.delimiter, 
+                delimiter=self.delimiter,
                 quotechar=self.quotechar,
-                quoting=csv.QUOTE_NONNUMERIC)
+                quoting=csv.QUOTE_NONNUMERIC,
+            )
             return list(reader)
-

@@ -6,6 +6,7 @@ import cv2 as cv
 
 class FrameReadError(Exception):
     """"""
+
     pass
 
 
@@ -22,7 +23,7 @@ class ImagesReader:
     def read(self):
         """"""
         try:
-            frame = cv.imread(self.frames_path[self.current], cv.IMREAD_COLOR) 
+            frame = cv.imread(self.frames_path[self.current], cv.IMREAD_COLOR)
             self.current += 1
             return frame
         except IndexError as err:
@@ -55,4 +56,3 @@ class VideoReader:
         w = int(self.cap.get(cv.CAP_PROP_FRAME_WIDTH))
         h = int(self.cap.get(cv.CAP_PROP_FRAME_HEIGHT))
         return w, h
-
