@@ -43,45 +43,48 @@ def run(
     max_uptime=-1,
     do_prompt=True,
 ):
-    """"""
-    if save_to:
-        if do_prompt and os.path.isdir(save_to):
-            do_ow = query_yes_no(
-                "{} already exist. Overwrite?".format(save_to), default="no"
-            )
-            if do_ow:
-                pass
-            else:
-                print("(ʘ‿ʘ)╯ Bye!")
-                exit(0)
+    """
+    """
+    # Prepare save_to, log_file
+    if not save_to:
+        pass
+    elif do_prompt and os.path.isdir(save_to):
+        do_ow = query_yes_no(
+            "{} already exist. Overwrite?".format(save_to), default="no"
+        )
+        if do_ow:
+            pass
         else:
-            os.makedirs(save_to, exist_ok=True)
+            print("(ʘ‿ʘ)╯ Bye!")
+            exit(0)
+    else:
+        os.makedirs(save_to, exist_ok=True)
 
-    if log_file:
-        if do_prompt and os.path.isfile(log_file):
-            do_ow = query_yes_no(
-                "{} already exist. Overwrite?".format(log_file), default="no"
-            )
-            if do_ow:
-                pass
-            else:
-                print("(ʘ‿ʘ)╯ Bye!")
-                exit(0)
+    if not log_file:
+        pass
+    elif do_prompt and os.path.isfile(log_file):
+        do_ow = query_yes_no(
+            "{} already exist. Overwrite?".format(log_file), default="no"
+        )
+        if do_ow:
+            pass
+        else:
+            print("(ʘ‿ʘ)╯ Bye!")
+            exit(0)
 
-        header = ["im_file_name", "timestamp", "roi_id", "n_objs"]
-        logger = Logger(log_file, header, delimiter, quotechar)
-        logger.open(mode="w+")
-        logger.write_header()
-    # -------------------------------------------------------------------------
+    # Init logger
+    header = ["im_file_name", "timestamp", "roi_id", "n_objs"]
+    logger = Logger(log_file, header, delimiter, quotechar)
+    logger.open(mode="w+")
+    logger.write_header()
 
+    # Load ROIs data
     frame_w, frame_h = framesReader.get_frame_size()
-
     rois = ROIManager.read_rois(rois_file, delimiter, quotechar)
-
     if input_size is None:
         input_size = [frame_w, frame_h]
 
-    # Core
+    # [Core]
     yolov3 = YOLOv3(
         input_size[::-1],
         max_boxes,
@@ -90,32 +93,33 @@ def run(
         session_config=session_config,
     )
     detector = Detector(yolov3)
-
     tracker = SORT()
-    # << Core
-    # -------------------------------------------------------------------------
 
-    print("Detecting and tracking. Press 'q' at {} to quit.".format(winname))
+    # Stopwatches, FPS counter
     fpsCounter = FPSCounter(limit=1)
     log_sw = StopWatch(precision=0)
     log_save_sw = StopWatch(precision=0)
 
+    # Init main loop conditions
     do_log_every_frame = log_dist < 0
-
-    n_log_writing = 0
-    exp_n_log_writing = log_save_dist // log_dist
+    if not do_log_every_frame:
+        n_log_writing = 0
+        exp_n_log_writing = log_save_dist // log_dist
 
     n_save_times = 0
     exp_n_save_times = max_uptime // log_save_dist
 
+    # Main loop
     frame_num = int(0)
     while 1:
         if frame_num == 0:
+            # Start all stopwatches
             now = log_sw.start()
             log_save_sw.start_at(now)
         else:
-            now = log_sw.time()
+            now = log_sw.time()  # Use this "timestamp" when writting logs
 
+        # Read 1 frames
         try:
             frame = framesReader.read()
         except FrameReadError as err:
@@ -125,6 +129,7 @@ def run(
             break
         im_file_name = im_format.format(frame_num)
 
+        # Whether to write log, save log
         if do_log_every_frame:
             do_log = True
             do_log_save = log_save_sw.elapsed() >= log_save_dist
@@ -137,6 +142,7 @@ def run(
             if do_log_save:
                 n_log_writing = 0
 
+        # Whether to end
         if max_uptime < 0:
             do_end = False
         else:
@@ -144,23 +150,26 @@ def run(
                 n_save_times += 1
             do_end = n_save_times == exp_n_save_times
 
+        # [Core] detecting & tracking
         boxes, scores, labels = detector.detect(frame, valid_classes, max_bb_size_ratio)
         tracks = tracker.update(boxes, scores)
 
+        # Count OBJs inside ROI, draw boxes
         for roi in rois:
             roi_value = (roi["x"], roi["y"], roi["w"], roi["h"])
 
-            # Keep track of
-            n_detected_objs = int(0)  # number of objs inside this ROI
-
-            # Encountered objs mask, for filter out later
+            # >>> Process detected OBJs
+            # Number of OBJs inside this ROI
+            n_detected_objs = int(0)
+            # Encountered objs mask
             encountered_objs_mask = np.asarray([False] * len(boxes))
+
             for id_ in range(len(boxes)):
                 if not is_inside_roi(roi_value, boxes[id_]):
                     continue
-
                 n_detected_objs += 1
                 encountered_objs_mask[id_] = True
+
                 draw_detection(
                     frame,
                     boxes[id_],
@@ -170,23 +179,27 @@ def run(
                     do_show_class,
                 )
 
+            # Filter out encountered OBJs
             if len(encountered_objs_mask) > 0:
                 boxes = np.asarray(boxes)[~encountered_objs_mask]
                 scores = np.asarray(scores)[~encountered_objs_mask]
                 labels = np.asarray(labels)[~encountered_objs_mask]
-            # -----------------------------------------------------------------
+            # <<< Process detected OBJs
 
+            # >>> Process tracked OBJs
+            # Encountered objs mask
             encountered_objs_mask = np.asarray([False] * len(tracks))
+
             for id_ in range(len(tracks)):
                 if not is_inside_roi(roi_value, tracks[id_][:4]):
                     continue
-
                 encountered_objs_mask[id_] = True
                 draw_tracking(frame, tracks[id_])
 
+            # Filter out encountered OBJs
             if len(encountered_objs_mask) > 0:
                 tracks = tracks[~encountered_objs_mask]
-            # -----------------------------------------------------------------
+            # <<< Process tracked OBJs
 
             draw_roi(frame, roi, n_detected_objs)
 
@@ -196,17 +209,10 @@ def run(
                 logger.info(log_line)
                 # print(log_line)
 
-        if do_log:
-            if not do_log_every_frame:
-                log_sw.start()
-
         if do_log_save and log_file:
             str_time = get_str_localtime(time_fmt, now)
-            # logger.info([None, str_time, None, None])
+            logger.info([None, str_time, None, None])
             logger.save()
-            if do_log_every_frame:
-                log_save_sw.start()
-            # print("log saved at", str_time)
 
         put_line_bg(frame, "FPS: {:.02f}".format(fpsCounter.get()), (frame_w // 2, 0))
 
@@ -219,9 +225,13 @@ def run(
                 break
 
         if do_end:
-            str_time = get_str_localtime(time_fmt, now)
-            print("max_uptime elapsed, end process at", str_time)
             break
+
+        # Restart all stopwatches
+        if do_log and not do_log_every_frame:
+            log_sw.start()
+        if do_log_save and do_log_every_frame:
+            log_save_sw.start()
 
         fpsCounter.tick()
         frame_num += 1
