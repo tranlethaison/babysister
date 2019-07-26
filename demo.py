@@ -1,4 +1,3 @@
-"""Demo"""
 import fire
 
 from babysister import frames_reader
@@ -16,7 +15,7 @@ def frames(
     iou_thresh=0.5,
     max_bb_size_ratio=[1, 1],
     save_to=None,
-    im_format="{:06d}.jpg",
+    im_fmt="{:06d}.jpg",
     log_file=None,
     delimiter=",",
     quotechar='"',
@@ -44,7 +43,7 @@ def frames(
         iou_thresh,
         max_bb_size_ratio,
         save_to,
-        im_format,
+        im_fmt,
         log_file,
         delimiter,
         quotechar,
@@ -71,7 +70,7 @@ def video(
     iou_thresh=0.5,
     max_bb_size_ratio=[1, 1],
     save_to=None,
-    im_format="{:06d}.jpg",
+    im_fmt="{:06d}.jpg",
     log_file=None,
     delimiter=",",
     quotechar='"',
@@ -99,7 +98,7 @@ def video(
         iou_thresh,
         max_bb_size_ratio,
         save_to,
-        im_format,
+        im_fmt,
         log_file,
         delimiter,
         quotechar,

@@ -29,7 +29,7 @@ def run(
     iou_thresh=0.5,
     max_bb_size_ratio=[1, 1],
     save_to=None,
-    im_format="{:06d}.jpg",
+    im_fmt="{:06d}.jpg",
     log_file=None,
     delimiter=",",
     quotechar='"',
@@ -43,7 +43,67 @@ def run(
     max_uptime=-1,
     do_prompt=True,
 ):
-    """
+    """Objects detecting, online tracking.
+
+    Get frames by `framesReader`, 
+    for every gotten frame do detecting, online tracking, save result images, logs.
+
+    Parameters
+    ----------
+    framesReader : instance of `frames_reader.ImagesReader` or `frames_reader.VideoReader` 
+       Get frames as numpy.ndarray from a source.
+    do_try_reading : bool, optional
+        Whether to continue trying when `framesReader` raises `FrameReadError`.
+    rois_file : string, optional
+        Path to ROIs data csv file.
+    input_size : list of 2 integers, optional
+        Input size (width, height) use for OBJ detector initial.
+        Should has same aspect ratio as frame size.
+        None implies frame size.
+    valid_classes : list of strings or None, optional
+        Only detect these classes, omit others.
+        None implies all possible classes.
+        All possible classes are in `yolov3_wrapper._class_name_path`.
+    max_boxes : int, optional
+        Maximum detected bounding boxes.
+    score_thresh : float (from 0 to 1), optional
+        Detector confidence score threshold.
+    iou_thresh : float (from 0 to 1), optional
+        IOU threshold use for detected boxes Non-Maximum Suppression.
+    max_bb_size_ratio : list of 2 floats (from 0 to 1), optional
+        Maximum bounding box size ratio wrt frame size.
+    save_to : string or None, optional
+        Path to folder that result images will be saved to.
+        None implies no saving.
+    im_fmt : string, optional
+        Frame name format.        
+    log_file : string or None, optional
+        Path to csv log file.
+        None implies no logging.
+    delimiter : string, optional
+        Delimiter of log file and ROIs data file.
+    quotechar : string, optional
+        Quote character of log file and ROIs data file.
+    time_fmt : string, optional
+        Time format of log file and ROIs data file.
+    log_dist : float, optional
+        Time interval (seconds) between logs buffering, result images saving.
+        Negative implies buffering all logs, saving all iamges.
+    log_save_dist : float, optional
+        Time interval (seconds) between logs saving.
+    do_show : bool, optional
+        Whether to show result window.
+    do_show_class : bool, optional
+        Whether to show classes, confidence scores.
+    winname : String, optional
+        Result window name.
+    session_config : instance of tensorflow.ConfigProto, optional
+        Detector session config.
+    max_uptime : float, optional
+        Maximum uptime (seconds).
+        Negative implies infinite.
+    do_prompt : bool, optional
+        Whether to prompt when `save_to` or `log_file` existed.
     """
     # Prepare save_to, log_file
     if not save_to:
@@ -119,7 +179,7 @@ def run(
         else:
             now = log_sw.time()  # Use this "timestamp" when writting logs
 
-        # Read 1 frames
+        # Read a frame
         try:
             frame = framesReader.read()
         except FrameReadError as err:
@@ -127,7 +187,7 @@ def run(
             if do_try_reading:
                 continue
             break
-        im_file_name = im_format.format(frame_num)
+        im_file_name = im_fmt.format(frame_num)
 
         # Whether to write log, save log
         if do_log_every_frame:
