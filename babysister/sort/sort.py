@@ -1,5 +1,4 @@
-"""
-    SORT: A Simple, Online and Realtime Tracker
+"""SORT: A Simple, Online and Realtime Tracker
     Copyright (C) 2016 Alex Bewley alex@dynamicdetection.com
 
     This program is free software: you can redistribute it and/or modify
@@ -34,10 +33,10 @@ from filterpy.kalman import KalmanFilter
 
 def linear_assignment(X):
     """Fix DeprecationWarning: 
-    The linear_assignment function is deprecated in 0.21 
-    and will be removed from 0.23. 
-    Use scipy.optimize.linear_sum_assignment instead
-  """
+        The linear_assignment function is deprecated in 0.21 
+        and will be removed from 0.23. 
+        Use scipy.optimize.linear_sum_assignment instead
+    """
     row_ind, col_ind = linear_sum_assignment(X)
     indices = np.asarray([[r, c] for r, c in zip(row_ind, col_ind)], dtype=int)
 
@@ -49,9 +48,7 @@ def linear_assignment(X):
 
 @jit
 def iou(bb_test, bb_gt):
-    """
-  Computes IUO between two bboxes in the form [x1,y1,x2,y2]
-  """
+    """Computes IUO between two bboxes in the form [x1,y1,x2,y2]."""
     xx1 = np.maximum(bb_test[0], bb_gt[0])
     yy1 = np.maximum(bb_test[1], bb_gt[1])
     xx2 = np.minimum(bb_test[2], bb_gt[2])
@@ -68,11 +65,10 @@ def iou(bb_test, bb_gt):
 
 
 def convert_bbox_to_z(bbox):
+    """Takes a bounding box in the form [x1,y1,x2,y2] and returns z in the form
+        [x,y,s,r] where x,y is the centre of the box and s is the scale/area and r is
+        the aspect ratio.
     """
-  Takes a bounding box in the form [x1,y1,x2,y2] and returns z in the form
-    [x,y,s,r] where x,y is the centre of the box and s is the scale/area and r is
-    the aspect ratio
-  """
     w = bbox[2] - bbox[0]
     h = bbox[3] - bbox[1]
     x = bbox[0] + w / 2.0
@@ -83,10 +79,9 @@ def convert_bbox_to_z(bbox):
 
 
 def convert_x_to_bbox(x, score=None):
+    """Takes a bounding box in the centre form [x,y,s,r] and returns it in the form
+        [x1,y1,x2,y2] where x1,y1 is the top left and x2,y2 is the bottom right.
     """
-  Takes a bounding box in the centre form [x,y,s,r] and returns it in the form
-    [x1,y1,x2,y2] where x1,y1 is the top left and x2,y2 is the bottom right
-  """
     w = np.sqrt(x[2] * x[3])
     h = x[2] / w
     if score == None:
@@ -100,16 +95,14 @@ def convert_x_to_bbox(x, score=None):
 
 
 class KalmanBoxTracker(object):
+    """This class represents the internel state 
+    of individual tracked objects observed as bbox.
     """
-  This class represents the internel state of individual tracked objects observed as bbox.
-  """
 
     count = 0
 
     def __init__(self, bbox):
-        """
-    Initialises a tracker using initial bounding box.
-    """
+        """Initialises a tracker using initial bounding box."""
         # define constant velocity model
         self.kf = KalmanFilter(dim_x=7, dim_z=4)
         self.kf.F = np.array(
@@ -150,9 +143,7 @@ class KalmanBoxTracker(object):
         self.age = 0
 
     def update(self, bbox):
-        """
-    Updates the state vector with observed bbox.
-    """
+        """Updates the state vector with observed bbox."""
         self.time_since_update = 0
         self.history = []
         self.hits += 1
@@ -160,9 +151,7 @@ class KalmanBoxTracker(object):
         self.kf.update(convert_bbox_to_z(bbox))
 
     def predict(self):
-        """
-    Advances the state vector and returns the predicted bounding box estimate.
-    """
+        """Advances the state vector and returns the predicted bounding box estimate."""
         if (self.kf.x[6] + self.kf.x[2]) <= 0:
             self.kf.x[6] *= 0.0
         self.kf.predict()
@@ -174,18 +163,15 @@ class KalmanBoxTracker(object):
         return self.history[-1]
 
     def get_state(self):
-        """
-    Returns the current bounding box estimate.
-    """
+        """Returns the current bounding box estimate."""
         return convert_x_to_bbox(self.kf.x)
 
 
 def associate_detections_to_trackers(detections, trackers, iou_threshold=0.3):
-    """
-  Assigns detections to tracked object (both represented as bounding boxes)
+    """Assigns detections to tracked object (both represented as bounding boxes)
 
-  Returns 3 lists of matches, unmatched_detections and unmatched_trackers
-  """
+        Returns 3 lists of matches, unmatched_detections and unmatched_trackers
+    """
     if len(trackers) == 0:
         return (
             np.empty((0, 2), dtype=int),
@@ -226,9 +212,7 @@ def associate_detections_to_trackers(detections, trackers, iou_threshold=0.3):
 
 class Sort(object):
     def __init__(self, max_age=1, min_hits=3):
-        """
-    Sets key parameters for SORT
-    """
+        """Sets key parameters for SORT."""
         self.max_age = max_age
         self.min_hits = min_hits
         self.trackers = []
@@ -236,13 +220,19 @@ class Sort(object):
 
     def update(self, dets):
         """
-    Params:
-      dets - a numpy array of detections in the format [[x1,y1,x2,y2,score],[x1,y1,x2,y2,score],...]
-    Requires: this method must be called once for each frame even with empty detections.
-    Returns the a similar array, where the last column is the object ID.
+        Params:
+            dets: a numpy array of detections 
+            in the format [[x1,y1,x2,y2,score],[x1,y1,x2,y2,score],...]
+        Requires: 
+            this method must be called once for each frame even with empty detections.
 
-    NOTE: The number of objects returned may differ from the number of detections provided.
-    """
+        Returns:
+            The a similar array, where the last column is the object ID.
+
+        NOTE:
+            The number of objects returned may differ 
+            from the number of detections provided.
+        """
         self.frame_count += 1
         # get predicted locations from existing trackers.
         trks = np.zeros((len(self.trackers), 5))
@@ -325,7 +315,10 @@ if __name__ == "__main__":
     if display:
         if not os.path.exists("mot_benchmark"):
             print(
-                "\n\tERROR: mot_benchmark link not found!\n\n    Create a symbolic link to the MOT benchmark\n    (https://motchallenge.net/data/2D_MOT_2015/#download). E.g.:\n\n    $ ln -s /path/to/MOT2015_challenge/2DMOT2015 mot_benchmark\n\n"
+                "\n\tERROR: mot_benchmark link not found!\n\n"
+                + "\tCreate a symbolic link to the MOT benchmark\n"
+                + "\t(https://motchallenge.net/data/2D_MOT_2015/#download). E.g.:\n\n"
+                + "\t$ ln -s /path/to/MOT2015_challenge/2DMOT2015 mot_benchmark\n\n"
             )
             exit()
         plt.ion()

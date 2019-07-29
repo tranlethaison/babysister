@@ -2,8 +2,14 @@
 
 
 def is_inside_roi(roi_value, box):
-    """Is bouding box inside ROI
-    If its centroid is inside ROI, it also is.
+    """Is bouding box centroid inside ROI.
+
+    Args:
+        roi_value ([x, y, w, h] list): x, y: top-left; w, h: width & heigh.
+        box ([x0, y0, x1, y1] list): x0, y0: top-left; x1, y1: bottom-right.
+
+    Returns:
+        bool: Whether box is inside ROI.
     """
     x, y, w, h = roi_value
     x0, y0, x1, y1 = box
@@ -11,15 +17,14 @@ def is_inside_roi(roi_value, box):
 
 
 def iou(bbox1, bbox2):
-    """
-    Calculates the intersection-over-union of two bounding boxes.
+    """Calculates the intersection-over-union of two bounding boxes.
 
     Args:
-        bbox1 (numpy.array, list of floats): bounding box in format x1,y1,x2,y2
-        bbox2 (numpy.array, list of floats): bounding box in format x1,y1,x2,y2
+        bbox1 (numpy.array, list of floats): bounding box in format x1,y1,x2,y2.
+        bbox2 (numpy.array, list of floats): bounding box in format x1,y1,x2,y2.
 
     Returns:
-        int: intersection-over-onion of bbox1, bbox2
+        int: intersection-over-onion of bbox1, bbox2.
     """
 
     bbox1 = [float(x) for x in bbox1]

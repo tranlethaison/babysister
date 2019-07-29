@@ -1,0 +1,411 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>babysister.YOLOv3_TensorFlow.utils package &mdash; Babysister 1.1.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Babysister
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">babysister.YOLOv3_TensorFlow.utils package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-babysister.YOLOv3_TensorFlow.utils.data_utils">babysister.YOLOv3_TensorFlow.utils.data_utils module</a></li>
+<li><a class="reference internal" href="#babysister-yolov3-tensorflow-utils-eval-utils-module">babysister.YOLOv3_TensorFlow.utils.eval_utils module</a></li>
+<li><a class="reference internal" href="#module-babysister.YOLOv3_TensorFlow.utils.layer_utils">babysister.YOLOv3_TensorFlow.utils.layer_utils module</a></li>
+<li><a class="reference internal" href="#module-babysister.YOLOv3_TensorFlow.utils.misc_utils">babysister.YOLOv3_TensorFlow.utils.misc_utils module</a></li>
+<li><a class="reference internal" href="#module-babysister.YOLOv3_TensorFlow.utils.nms_utils">babysister.YOLOv3_TensorFlow.utils.nms_utils module</a></li>
+<li><a class="reference internal" href="#module-babysister.YOLOv3_TensorFlow.utils.plot_utils">babysister.YOLOv3_TensorFlow.utils.plot_utils module</a></li>
+<li><a class="reference internal" href="#module-babysister.YOLOv3_TensorFlow.utils">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Babysister</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>babysister.YOLOv3_TensorFlow.utils package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/babysister.YOLOv3_TensorFlow.utils.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="babysister-yolov3-tensorflow-utils-package">
+<h1>babysister.YOLOv3_TensorFlow.utils package<a class="headerlink" href="#babysister-yolov3-tensorflow-utils-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-babysister.YOLOv3_TensorFlow.utils.data_utils">
+<span id="babysister-yolov3-tensorflow-utils-data-utils-module"></span><h2>babysister.YOLOv3_TensorFlow.utils.data_utils module<a class="headerlink" href="#module-babysister.YOLOv3_TensorFlow.utils.data_utils" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="babysister.YOLOv3_TensorFlow.utils.data_utils.data_augmentation">
+<code class="sig-prename descclassname">babysister.YOLOv3_TensorFlow.utils.data_utils.</code><code class="sig-name descname">data_augmentation</code><span class="sig-paren">(</span><em class="sig-param">img</em>, <em class="sig-param">boxes</em>, <em class="sig-param">label</em><span class="sig-paren">)</span><a class="headerlink" href="#babysister.YOLOv3_TensorFlow.utils.data_utils.data_augmentation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Do your own data augmentation here.
+param:</p>
+<blockquote>
+<div><p>img: a [H, W, 3] shape RGB format image, float32 dtype
+boxes: [N, 4] shape boxes coordinate info, N is the ground truth box number,</p>
+<blockquote>
+<div><p>4 elements in the second dimension are [x_min, y_min, x_max, y_max], float32 dtype</p>
+</div></blockquote>
+<p>label: [N] shape labels, int64 dtype (you should not convert to int32)</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="function">
+<dt id="babysister.YOLOv3_TensorFlow.utils.data_utils.parse_data">
+<code class="sig-prename descclassname">babysister.YOLOv3_TensorFlow.utils.data_utils.</code><code class="sig-name descname">parse_data</code><span class="sig-paren">(</span><em class="sig-param">line</em>, <em class="sig-param">class_num</em>, <em class="sig-param">img_size</em>, <em class="sig-param">anchors</em>, <em class="sig-param">mode</em><span class="sig-paren">)</span><a class="headerlink" href="#babysister.YOLOv3_TensorFlow.utils.data_utils.parse_data" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>param:</dt><dd><p>line: a line from the training/test txt file
+args: args returned from the main program
+mode: ‘train’ or ‘val’. When set to ‘train’, data_augmentation will be applied.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="babysister.YOLOv3_TensorFlow.utils.data_utils.parse_line">
+<code class="sig-prename descclassname">babysister.YOLOv3_TensorFlow.utils.data_utils.</code><code class="sig-name descname">parse_line</code><span class="sig-paren">(</span><em class="sig-param">line</em><span class="sig-paren">)</span><a class="headerlink" href="#babysister.YOLOv3_TensorFlow.utils.data_utils.parse_line" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a line from the training/test txt file, return parsed
+pic_path, boxes info, and label info.
+:returns: string.</p>
+<blockquote>
+<div><dl class="simple">
+<dt>boxes: shape [N, 4], N is the ground truth count, elements in the second</dt><dd><p>dimension are [x_min, y_min, x_max, y_max]</p>
+</dd>
+</dl>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pic_path</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="babysister.YOLOv3_TensorFlow.utils.data_utils.process_box">
+<code class="sig-prename descclassname">babysister.YOLOv3_TensorFlow.utils.data_utils.</code><code class="sig-name descname">process_box</code><span class="sig-paren">(</span><em class="sig-param">boxes</em>, <em class="sig-param">labels</em>, <em class="sig-param">img_size</em>, <em class="sig-param">class_num</em>, <em class="sig-param">anchors</em><span class="sig-paren">)</span><a class="headerlink" href="#babysister.YOLOv3_TensorFlow.utils.data_utils.process_box" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate the y_true label, i.e. the ground truth feature_maps in 3 different scales.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="babysister.YOLOv3_TensorFlow.utils.data_utils.resize_image_and_correct_boxes">
+<code class="sig-prename descclassname">babysister.YOLOv3_TensorFlow.utils.data_utils.</code><code class="sig-name descname">resize_image_and_correct_boxes</code><span class="sig-paren">(</span><em class="sig-param">img</em>, <em class="sig-param">boxes</em>, <em class="sig-param">img_size</em><span class="sig-paren">)</span><a class="headerlink" href="#babysister.YOLOv3_TensorFlow.utils.data_utils.resize_image_and_correct_boxes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="babysister-yolov3-tensorflow-utils-eval-utils-module">
+<h2>babysister.YOLOv3_TensorFlow.utils.eval_utils module<a class="headerlink" href="#babysister-yolov3-tensorflow-utils-eval-utils-module" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-babysister.YOLOv3_TensorFlow.utils.layer_utils">
+<span id="babysister-yolov3-tensorflow-utils-layer-utils-module"></span><h2>babysister.YOLOv3_TensorFlow.utils.layer_utils module<a class="headerlink" href="#module-babysister.YOLOv3_TensorFlow.utils.layer_utils" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="babysister.YOLOv3_TensorFlow.utils.layer_utils.conv2d">
+<code class="sig-prename descclassname">babysister.YOLOv3_TensorFlow.utils.layer_utils.</code><code class="sig-name descname">conv2d</code><span class="sig-paren">(</span><em class="sig-param">inputs</em>, <em class="sig-param">filters</em>, <em class="sig-param">kernel_size</em>, <em class="sig-param">strides=1</em><span class="sig-paren">)</span><a class="headerlink" href="#babysister.YOLOv3_TensorFlow.utils.layer_utils.conv2d" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="babysister.YOLOv3_TensorFlow.utils.layer_utils.darknet53_body">
+<code class="sig-prename descclassname">babysister.YOLOv3_TensorFlow.utils.layer_utils.</code><code class="sig-name descname">darknet53_body</code><span class="sig-paren">(</span><em class="sig-param">inputs</em><span class="sig-paren">)</span><a class="headerlink" href="#babysister.YOLOv3_TensorFlow.utils.layer_utils.darknet53_body" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="babysister.YOLOv3_TensorFlow.utils.layer_utils.upsample_layer">
+<code class="sig-prename descclassname">babysister.YOLOv3_TensorFlow.utils.layer_utils.</code><code class="sig-name descname">upsample_layer</code><span class="sig-paren">(</span><em class="sig-param">inputs</em>, <em class="sig-param">out_shape</em><span class="sig-paren">)</span><a class="headerlink" href="#babysister.YOLOv3_TensorFlow.utils.layer_utils.upsample_layer" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="babysister.YOLOv3_TensorFlow.utils.layer_utils.yolo_block">
+<code class="sig-prename descclassname">babysister.YOLOv3_TensorFlow.utils.layer_utils.</code><code class="sig-name descname">yolo_block</code><span class="sig-paren">(</span><em class="sig-param">inputs</em>, <em class="sig-param">filters</em><span class="sig-paren">)</span><a class="headerlink" href="#babysister.YOLOv3_TensorFlow.utils.layer_utils.yolo_block" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-babysister.YOLOv3_TensorFlow.utils.misc_utils">
+<span id="babysister-yolov3-tensorflow-utils-misc-utils-module"></span><h2>babysister.YOLOv3_TensorFlow.utils.misc_utils module<a class="headerlink" href="#module-babysister.YOLOv3_TensorFlow.utils.misc_utils" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="babysister.YOLOv3_TensorFlow.utils.misc_utils.config_learning_rate">
+<code class="sig-prename descclassname">babysister.YOLOv3_TensorFlow.utils.misc_utils.</code><code class="sig-name descname">config_learning_rate</code><span class="sig-paren">(</span><em class="sig-param">args</em>, <em class="sig-param">global_step</em><span class="sig-paren">)</span><a class="headerlink" href="#babysister.YOLOv3_TensorFlow.utils.misc_utils.config_learning_rate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="babysister.YOLOv3_TensorFlow.utils.misc_utils.config_optimizer">
+<code class="sig-prename descclassname">babysister.YOLOv3_TensorFlow.utils.misc_utils.</code><code class="sig-name descname">config_optimizer</code><span class="sig-paren">(</span><em class="sig-param">optimizer_name</em>, <em class="sig-param">learning_rate</em>, <em class="sig-param">decay=0.9</em>, <em class="sig-param">momentum=0.9</em><span class="sig-paren">)</span><a class="headerlink" href="#babysister.YOLOv3_TensorFlow.utils.misc_utils.config_optimizer" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="babysister.YOLOv3_TensorFlow.utils.misc_utils.list_add">
+<code class="sig-prename descclassname">babysister.YOLOv3_TensorFlow.utils.misc_utils.</code><code class="sig-name descname">list_add</code><span class="sig-paren">(</span><em class="sig-param">ori_list</em>, <em class="sig-param">new_list</em><span class="sig-paren">)</span><a class="headerlink" href="#babysister.YOLOv3_TensorFlow.utils.misc_utils.list_add" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="babysister.YOLOv3_TensorFlow.utils.misc_utils.load_weights">
+<code class="sig-prename descclassname">babysister.YOLOv3_TensorFlow.utils.misc_utils.</code><code class="sig-name descname">load_weights</code><span class="sig-paren">(</span><em class="sig-param">var_list</em>, <em class="sig-param">weights_file</em><span class="sig-paren">)</span><a class="headerlink" href="#babysister.YOLOv3_TensorFlow.utils.misc_utils.load_weights" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads and converts pre-trained weights.
+param:</p>
+<blockquote>
+<div><p>var_list: list of network variables.
+weights_file: name of the binary file.</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="function">
+<dt id="babysister.YOLOv3_TensorFlow.utils.misc_utils.make_summary">
+<code class="sig-prename descclassname">babysister.YOLOv3_TensorFlow.utils.misc_utils.</code><code class="sig-name descname">make_summary</code><span class="sig-paren">(</span><em class="sig-param">name</em>, <em class="sig-param">val</em><span class="sig-paren">)</span><a class="headerlink" href="#babysister.YOLOv3_TensorFlow.utils.misc_utils.make_summary" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="babysister.YOLOv3_TensorFlow.utils.misc_utils.parse_anchors">
+<code class="sig-prename descclassname">babysister.YOLOv3_TensorFlow.utils.misc_utils.</code><code class="sig-name descname">parse_anchors</code><span class="sig-paren">(</span><em class="sig-param">anchor_path</em><span class="sig-paren">)</span><a class="headerlink" href="#babysister.YOLOv3_TensorFlow.utils.misc_utils.parse_anchors" title="Permalink to this definition">¶</a></dt>
+<dd><p>parse anchors.
+returned data: shape [N, 2], dtype float32</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="babysister.YOLOv3_TensorFlow.utils.misc_utils.read_class_names">
+<code class="sig-prename descclassname">babysister.YOLOv3_TensorFlow.utils.misc_utils.</code><code class="sig-name descname">read_class_names</code><span class="sig-paren">(</span><em class="sig-param">class_name_path</em><span class="sig-paren">)</span><a class="headerlink" href="#babysister.YOLOv3_TensorFlow.utils.misc_utils.read_class_names" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="babysister.YOLOv3_TensorFlow.utils.misc_utils.shuffle_and_overwrite">
+<code class="sig-prename descclassname">babysister.YOLOv3_TensorFlow.utils.misc_utils.</code><code class="sig-name descname">shuffle_and_overwrite</code><span class="sig-paren">(</span><em class="sig-param">file_name</em><span class="sig-paren">)</span><a class="headerlink" href="#babysister.YOLOv3_TensorFlow.utils.misc_utils.shuffle_and_overwrite" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="babysister.YOLOv3_TensorFlow.utils.misc_utils.update_dict">
+<code class="sig-prename descclassname">babysister.YOLOv3_TensorFlow.utils.misc_utils.</code><code class="sig-name descname">update_dict</code><span class="sig-paren">(</span><em class="sig-param">ori_dict</em>, <em class="sig-param">new_dict</em><span class="sig-paren">)</span><a class="headerlink" href="#babysister.YOLOv3_TensorFlow.utils.misc_utils.update_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-babysister.YOLOv3_TensorFlow.utils.nms_utils">
+<span id="babysister-yolov3-tensorflow-utils-nms-utils-module"></span><h2>babysister.YOLOv3_TensorFlow.utils.nms_utils module<a class="headerlink" href="#module-babysister.YOLOv3_TensorFlow.utils.nms_utils" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="babysister.YOLOv3_TensorFlow.utils.nms_utils.cpu_nms">
+<code class="sig-prename descclassname">babysister.YOLOv3_TensorFlow.utils.nms_utils.</code><code class="sig-name descname">cpu_nms</code><span class="sig-paren">(</span><em class="sig-param">boxes</em>, <em class="sig-param">scores</em>, <em class="sig-param">num_classes</em>, <em class="sig-param">max_boxes=50</em>, <em class="sig-param">score_thresh=0.5</em>, <em class="sig-param">iou_thresh=0.5</em><span class="sig-paren">)</span><a class="headerlink" href="#babysister.YOLOv3_TensorFlow.utils.nms_utils.cpu_nms" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform NMS on CPU.
+:param boxes: shape [1, 10647, 4]
+:param scores: shape [1, 10647, num_classes]</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="babysister.YOLOv3_TensorFlow.utils.nms_utils.gpu_nms">
+<code class="sig-prename descclassname">babysister.YOLOv3_TensorFlow.utils.nms_utils.</code><code class="sig-name descname">gpu_nms</code><span class="sig-paren">(</span><em class="sig-param">boxes</em>, <em class="sig-param">scores</em>, <em class="sig-param">num_classes</em>, <em class="sig-param">max_boxes=50</em>, <em class="sig-param">score_thresh=0.5</em>, <em class="sig-param">iou_thresh=0.5</em><span class="sig-paren">)</span><a class="headerlink" href="#babysister.YOLOv3_TensorFlow.utils.nms_utils.gpu_nms" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform NMS on GPU using TensorFlow.</p>
+<dl>
+<dt>params:</dt><dd><p>boxes: tensor of shape [1, 10647, 4] # 10647=(13*13+26*26+52*52)*3, for input 416*416 image
+scores: tensor of shape [1, 10647, num_classes], score=conf*prob
+num_classes: total number of classes
+max_boxes: integer, maximum number of predicted boxes you’d like, default is 50
+score_thresh: if [ highest class probability score &lt; score_threshold]</p>
+<blockquote>
+<div><p>then get rid of the corresponding box</p>
+</div></blockquote>
+<p>iou_thresh: real value, “intersection over union” threshold used for NMS filtering</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="babysister.YOLOv3_TensorFlow.utils.nms_utils.py_nms">
+<code class="sig-prename descclassname">babysister.YOLOv3_TensorFlow.utils.nms_utils.</code><code class="sig-name descname">py_nms</code><span class="sig-paren">(</span><em class="sig-param">boxes</em>, <em class="sig-param">scores</em>, <em class="sig-param">max_boxes=50</em>, <em class="sig-param">iou_thresh=0.5</em><span class="sig-paren">)</span><a class="headerlink" href="#babysister.YOLOv3_TensorFlow.utils.nms_utils.py_nms" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pure Python NMS baseline.</p>
+<dl>
+<dt>Arguments: boxes: shape of [-1, 4], the value of ‘-1’ means that dont know the</dt><dd><blockquote>
+<div><p>exact number of boxes</p>
+</div></blockquote>
+<p>scores: shape of [-1,]
+max_boxes: representing the maximum of boxes to be selected by non_max_suppression
+iou_thresh: representing iou_threshold for deciding to keep boxes</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-babysister.YOLOv3_TensorFlow.utils.plot_utils">
+<span id="babysister-yolov3-tensorflow-utils-plot-utils-module"></span><h2>babysister.YOLOv3_TensorFlow.utils.plot_utils module<a class="headerlink" href="#module-babysister.YOLOv3_TensorFlow.utils.plot_utils" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="babysister.YOLOv3_TensorFlow.utils.plot_utils.get_color_table">
+<code class="sig-prename descclassname">babysister.YOLOv3_TensorFlow.utils.plot_utils.</code><code class="sig-name descname">get_color_table</code><span class="sig-paren">(</span><em class="sig-param">class_num</em>, <em class="sig-param">seed=2</em><span class="sig-paren">)</span><a class="headerlink" href="#babysister.YOLOv3_TensorFlow.utils.plot_utils.get_color_table" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="babysister.YOLOv3_TensorFlow.utils.plot_utils.plot_one_box">
+<code class="sig-prename descclassname">babysister.YOLOv3_TensorFlow.utils.plot_utils.</code><code class="sig-name descname">plot_one_box</code><span class="sig-paren">(</span><em class="sig-param">img</em>, <em class="sig-param">coord</em>, <em class="sig-param">label=None</em>, <em class="sig-param">color=None</em>, <em class="sig-param">line_thickness=None</em><span class="sig-paren">)</span><a class="headerlink" href="#babysister.YOLOv3_TensorFlow.utils.plot_utils.plot_one_box" title="Permalink to this definition">¶</a></dt>
+<dd><p>coord: [x_min, y_min, x_max, y_max] format coordinates.
+img: img to plot on.
+label: str. The label name.
+color: int. color index.
+line_thickness: int. rectangle line thickness.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-babysister.YOLOv3_TensorFlow.utils">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-babysister.YOLOv3_TensorFlow.utils" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Tran Le Thai Son
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

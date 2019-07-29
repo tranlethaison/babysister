@@ -5,12 +5,14 @@ from distutils.util import strtobool
 def query_yes_no(question, default="yes"):
     """Ask a yes/no question via input() and return their answer.
 
-    "question" is a string that is presented to the user.
-    "default" is the presumed answer if the user just hits <Enter>.
-        It must be "yes" (the default), "no" or None (meaning
-        an answer is required of the user).
-
-    The "answer" return value is True for "yes" or False for "no".
+    Args:
+        question (str): string that is presented to the user.
+        default (str, ["yes" | "no" | None]): 
+            presumed answer if the user just hits <Enter>.
+            None implies an answer is required of user.
+    
+    Returns:
+        bool: answer.
     """
     if default is None:
         prompt = " [y/n] "

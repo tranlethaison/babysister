@@ -1,4 +1,3 @@
-"""Wrapper for YOLOv3_TensorFlow"""
 import tensorflow as tf
 
 from .YOLOv3_TensorFlow.utils.misc_utils import parse_anchors, read_class_names
@@ -12,6 +11,20 @@ _restore_path = "babysister/YOLOv3_TensorFlow/data/darknet_weights/yolov3.ckpt"
 
 
 class YOLOv3:
+    """Wrapper for YOLOv3_TensorFlow.
+
+    Args:
+        input_size (list of 2 integers, optional): input image size [width, height].
+        max_boxes (int, optional): maximum detected bounding boxes.
+        score_thresh (float (from 0 to 1), optional): confidence score threshold.
+        iou_thresh (float (from 0 to 1), optional):
+            IOU threshold use for detected boxes Non-Maximum Suppression.
+        anchor_path (str): anchor file path.
+        class_name_path (str): class names file path.
+        restore_path (str): path to folder that contains checkpoints.
+        session_config (:class:`tensorflow.ConfigProto` instance, optional):
+            Detector session config.
+    """
     def __init__(
         self,
         input_size=[416, 416],
@@ -23,8 +36,6 @@ class YOLOv3:
         restore_path=_restore_path,
         session_config=None,
     ):
-        """
-        """
         self.input_size = input_size
         self.max_boxes = max_boxes
         self.score_thresh = score_thresh
@@ -42,6 +53,7 @@ class YOLOv3:
         self.sess = self._get_sess()
 
     def _get_sess(self):
+        """Returns yolov3 session restored from `restore_path`"""
         with self.graph.as_default():
             self.input_data = tf.placeholder(
                 tf.float32, (None, *self.input_size, 3), "input_data"
@@ -74,7 +86,16 @@ class YOLOv3:
         return input_data / 255.0
 
     def detect(self, input_data):
-        """
+        """Returns detections of `input_data` image.
+
+        Args:
+            input_data (ndarray): image (RGB) in format [width, height, channel].
+
+        Returns:
+            [boxes, scores, labels]:
+                `boxes` (Tensor) is boxes coordinate in format [[x0, y0, x1, y1], ...].
+                `scores` (Tensor) is confidence scores.
+                `labels` (Tensor) is label indexes.
         """
         return self.sess.run(
             [self.boxes, self.scores, self.labels],

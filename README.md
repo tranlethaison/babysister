@@ -5,6 +5,7 @@
     -   [Weights conversion](#weights-conversion)
     -   [Usage](#usage)
     -   [Demo](#demo)
+    -   [Documentation](#documentation)
     -   [TODO](#todo)
     -   [Credits](#credits)
     -   [Copying](#copying)
@@ -62,9 +63,17 @@ $ python demo.py video demo/TownCentre_720p.mp4 \
 
 * * *
 
+## Documentation
+
+  [Generated with Sphinx](doc/_build/index.html)
+
+* * *
+
 ## TODO
 
--   Add functions documentation.
+-   [x] Add docstring.
+-   [ ] Try out other detectors. E.g: [M2Det](https://github.com/qijiezhao/M2Det).
+-   [ ] Replace [sort](https://github.com/abewley/sort) with [deep_sort](https://github.com/nwojke/deep_sort).
 
 * * *
 

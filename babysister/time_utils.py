@@ -1,9 +1,10 @@
-"""¯\_(ツ)_/¯"""
 import time
 import datetime
 
 
 class StopWatch:
+    """¯\_(ツ)_/¯"""
+
     def __init__(self, precision=7):
         self.precision = precision
         self.fmt = "{:." + str(precision) + "f}"
