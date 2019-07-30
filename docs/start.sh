@@ -1,3 +1,6 @@
+printf "> Clean docs\n"
+rm -rf *.rst _* Makefile make.bat conf.py
+
 sphinx-quickstart \
     -p Babysister \
     -a "Tran Le Thai Son" \
@@ -9,9 +12,6 @@ sphinx-quickstart \
     ./
 
 CONF="./conf.py"
-ROOT=".."
-printf "import sys\nimport os\n\nsys.path.append(os.path.abspath('$ROOT'))\n\n" \
-    | cat - $CONF > temp
-mv temp $CONF
-
-printf "\n# Fix ReadTheDocs build error\nmaster_doc = 'index'" >> $CONF
+APPEND="./append_to_conf.py"
+printf "> Append $APPEND to $CONF\n"
+cat $APPEND >> $CONF

@@ -1,8 +1,3 @@
-import sys
-import os
-
-sys.path.append(os.path.abspath('..'))
-
 # Configuration file for the Sphinx documentation builder.
 #
 # This file only contains a selection of the most common options. For a full
@@ -69,5 +64,18 @@ html_static_path = ['_static']
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {'https://docs.python.org/': None}
 
+# appended
+import sys
+import os
+import sphinx_rtd_theme
+
+
+# Add project root to PATH
+sys.path.append(os.path.abspath(".."))
+
+extensions.append("sphinx_rtd_theme")
+
+html_theme = "sphinx_rtd_theme"
+
 # Fix ReadTheDocs build error
-master_doc = 'index'
+master_doc = "index"

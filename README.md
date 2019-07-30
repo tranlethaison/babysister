@@ -68,15 +68,17 @@ $ python demo.py video demo/TownCentre_720p.mp4 \
 
 ## Documentation
 
-  [Read the Docs]()
+  [ReadTheDocs](https://babysister.readthedocs.io/en/latest/)
 
 ### Generate for local using
 
 ```shell
-$ cd sphinx
+$ cd docs 
 $ ./start.sh
 $ ./build.sh 
 ```
+
+    HTML doc will be generated to: docs/_build/html/
 
 * * *
 
