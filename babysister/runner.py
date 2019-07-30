@@ -50,12 +50,12 @@ def run(
 
     Args:
         framesReader 
-            (instance of :class:`frames_reader.ImagesReader` 
-            or :class:`frames_reader.VideoReader`):
+            (:py:class:`~babysister.frames_reader.ImagesReader`
+            or :py:class:`~babysister.frames_reader.VideoReader`):
             Get frames as ndarray from a source.
         do_try_reading (bool, optional):
-            Whether to continue trying 
-            when `framesReader` raises :class:`frames_reader.FrameReadError`.
+            Whether to continue trying when `framesReader` raises 
+            :py:exc:`~babysister.frames_reader.FrameReadError`.
         rois_file (str, optional):
             Path to ROIs data csv file.
         input_size (list of 2 int, optional):
@@ -99,7 +99,7 @@ def run(
             Whether to show classes, confidence scores.
         winname (str, optional):
             Result window name.
-        session_config (:class:`tensorflow.ConfigProto` instance, optional):
+        session_config (:py:class:`tensorflow.ConfigProto`, optional):
             Detector session config.
         max_uptime (float, optional):
             Maximum uptime (seconds).  

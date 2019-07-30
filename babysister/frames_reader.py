@@ -57,7 +57,7 @@ class VideoReader:
         video_path (str): path to video.
 
     Attributes:
-        cap (OpenCV VideoCapture instance): VideoCapture of `video_path`.
+        cap (:py:class:`cv.VideoCapture`): VideoCapture of `video_path`.
     """
 
     def __init__(self, video_path):

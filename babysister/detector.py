@@ -6,7 +6,8 @@ class Detector:
     """Additional logics for OBJ Detection.
 
     Args:
-        core_detector (:class:`yolov3_wrapper.YOLOv3` instance): Core detector.
+        core_detector (:py:class:`~babysister.yolov3_wrapper.YOLOv3`): 
+            Core detector.
     """
 
     def __init__(self, core_detector):

@@ -22,7 +22,7 @@ class YOLOv3:
         anchor_path (str): anchor file path.
         class_name_path (str): class names file path.
         restore_path (str): path to folder that contains checkpoints.
-        session_config (:class:`tensorflow.ConfigProto` instance, optional):
+        session_config (:py:class:`tensorflow.ConfigProto`, optional):
             Detector session config.
     """
     def __init__(
