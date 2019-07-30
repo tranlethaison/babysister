@@ -1,0 +1,140 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>babysister.yolov3_wrapper module &#8212; Babysister 2.0.0 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="module-babysister.yolov3_wrapper">
+<span id="babysister-yolov3-wrapper-module"></span><h1>babysister.yolov3_wrapper module<a class="headerlink" href="#module-babysister.yolov3_wrapper" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="babysister.yolov3_wrapper.YOLOv3">
+<em class="property">class </em><code class="sig-prename descclassname">babysister.yolov3_wrapper.</code><code class="sig-name descname">YOLOv3</code><span class="sig-paren">(</span><em class="sig-param">input_size=[416, 416], max_boxes=30, score_thresh=0.5, iou_thresh=0.5, anchor_path='babysister/YOLOv3_TensorFlow/data/yolo_anchors.txt', class_name_path='babysister/YOLOv3_TensorFlow/data/coco.names', restore_path='babysister/YOLOv3_TensorFlow/data/darknet_weights/yolov3.ckpt', session_config=None</em><span class="sig-paren">)</span><a class="headerlink" href="#babysister.yolov3_wrapper.YOLOv3" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Wrapper for YOLOv3_TensorFlow.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input_size</strong> (<em>list of 2 integers</em><em>, </em><em>optional</em>) – input image size [width, height].</p></li>
+<li><p><strong>max_boxes</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em>, </em><em>optional</em>) – maximum detected bounding boxes.</p></li>
+<li><p><strong>score_thresh</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a><em> (</em><em>from 0 to 1</em><em>)</em><em>, </em><em>optional</em>) – confidence score threshold.</p></li>
+<li><p><strong>iou_thresh</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a><em> (</em><em>from 0 to 1</em><em>)</em><em>, </em><em>optional</em>) – IOU threshold use for detected boxes Non-Maximum Suppression.</p></li>
+<li><p><strong>anchor_path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – anchor file path.</p></li>
+<li><p><strong>class_name_path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – class names file path.</p></li>
+<li><p><strong>restore_path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – path to folder that contains checkpoints.</p></li>
+<li><p><strong>session_config</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tensorflow.ConfigProto</span></code>, optional) – Detector session config.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="babysister.yolov3_wrapper.YOLOv3.detect">
+<code class="sig-name descname">detect</code><span class="sig-paren">(</span><em class="sig-param">input_data</em><span class="sig-paren">)</span><a class="headerlink" href="#babysister.yolov3_wrapper.YOLOv3.detect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns detections of <cite>input_data</cite> image.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>input_data</strong> (<em>ndarray</em>) – image (RGB) in format [width, height, channel].</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><cite>boxes</cite> (Tensor) is boxes coordinate in format [[x0, y0, x1, y1], …].
+<cite>scores</cite> (Tensor) is confidence scores.
+<cite>labels</cite> (Tensor) is label indexes.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>[boxes, scores, labels]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Babysister</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, Tran Le Thai Son.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.1.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/babysister.yolov3_wrapper.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

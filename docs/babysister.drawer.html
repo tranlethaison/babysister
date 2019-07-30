@@ -1,0 +1,261 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>babysister.drawer module &#8212; Babysister 2.0.0 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="module-babysister.drawer">
+<span id="babysister-drawer-module"></span><h1>babysister.drawer module<a class="headerlink" href="#module-babysister.drawer" title="Permalink to this headline">¶</a></h1>
+<p>Drawing routines</p>
+<dl class="function">
+<dt id="babysister.drawer.create_unique_color_float">
+<code class="sig-prename descclassname">babysister.drawer.</code><code class="sig-name descname">create_unique_color_float</code><span class="sig-paren">(</span><em class="sig-param">tag</em>, <em class="sig-param">hue_step=0.41</em><span class="sig-paren">)</span><a class="headerlink" href="#babysister.drawer.create_unique_color_float" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a unique RGB color code for a given track id (tag).</p>
+<p>The color code is generated in HSV color space by moving along the
+hue angle and gradually changing the saturation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tag</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – The unique target identifying tag.</p></li>
+<li><p><strong>hue_step</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – Difference between two neighboring color codes in HSV space
+(more specifically, the distance in hue channel).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>RGB color code in range [0, 1].</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)">float</a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)">float</a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)">float</a>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="babysister.drawer.create_unique_color_uchar">
+<code class="sig-prename descclassname">babysister.drawer.</code><code class="sig-name descname">create_unique_color_uchar</code><span class="sig-paren">(</span><em class="sig-param">tag</em>, <em class="sig-param">hue_step=0.41</em><span class="sig-paren">)</span><a class="headerlink" href="#babysister.drawer.create_unique_color_uchar" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a unique RGB color code for a given track id (tag).</p>
+<p>The color code is generated in HSV color space by moving along the
+hue angle and gradually changing the saturation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tag</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – The unique target identifying tag.</p></li>
+<li><p><strong>hue_step</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – Difference between two neighboring color codes in HSV space
+(more specifically, the distance in hue channel).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>RGB color code in range [0, 255].</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)">int</a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)">int</a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)">int</a>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="babysister.drawer.draw_detection">
+<code class="sig-prename descclassname">babysister.drawer.</code><code class="sig-name descname">draw_detection</code><span class="sig-paren">(</span><em class="sig-param">im</em>, <em class="sig-param">box</em>, <em class="sig-param">score</em>, <em class="sig-param">label</em>, <em class="sig-param">classes</em>, <em class="sig-param">do_show_class=True</em>, <em class="sig-param">box_color=None</em>, <em class="sig-param">txt_color=(255</em>, <em class="sig-param">255</em>, <em class="sig-param">255)</em>, <em class="sig-param">fontFace=0</em>, <em class="sig-param">fontScale=0.35</em>, <em class="sig-param">fontThickness=1</em>, <em class="sig-param">boxThickness=2</em><span class="sig-paren">)</span><a class="headerlink" href="#babysister.drawer.draw_detection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Draw detections.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>im</strong> (<em>ndarray</em>) – image to draw to.</p></li>
+<li><p><strong>box</strong> (<em>list of int</em>) – box coordinate in format [x0, y0, x1, y1].</p></li>
+<li><p><strong>score</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – confidence score.</p></li>
+<li><p><strong>label</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – label index.</p></li>
+<li><p><strong>classes</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – labels data {id: name}.</p></li>
+<li><p><strong>bg_color</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em>, </em><em>list of 3 int</em>) – Background color RGB code.</p></li>
+<li><p><strong>txt_color</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em>, </em><em>list of 3 int</em>) – Text color RGB code.</p></li>
+<li><p><strong>fontFace</strong> – OpenCV Font type.</p></li>
+<li><p><strong>fontScale</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – Font scale factor that is multiplied by the font-specific base size.</p></li>
+<li><p><strong>fontThickness</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – Thickness of the lines used to draw text.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="babysister.drawer.draw_roi">
+<code class="sig-prename descclassname">babysister.drawer.</code><code class="sig-name descname">draw_roi</code><span class="sig-paren">(</span><em class="sig-param">im</em>, <em class="sig-param">roi</em>, <em class="sig-param">n_detected_objs</em>, <em class="sig-param">box_color=(0</em>, <em class="sig-param">0</em>, <em class="sig-param">0)</em>, <em class="sig-param">txt_color=(255</em>, <em class="sig-param">255</em>, <em class="sig-param">255)</em>, <em class="sig-param">fontFace=0</em>, <em class="sig-param">fontScale=0.35</em>, <em class="sig-param">fontThickness=1</em>, <em class="sig-param">boxThickness=2</em><span class="sig-paren">)</span><a class="headerlink" href="#babysister.drawer.draw_roi" title="Permalink to this definition">¶</a></dt>
+<dd><p>Draw ROI.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>im</strong> (<em>ndarray</em>) – image to draw to.</p></li>
+<li><p><strong>roi</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – ROI data with keys [“id”, “x”, “y”, “w”, “h”].</p></li>
+<li><p><strong>bg_color</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em>, </em><em>list of 3 int</em>) – Background color RGB code.</p></li>
+<li><p><strong>txt_color</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em>, </em><em>list of 3 int</em>) – Text color RGB code.</p></li>
+<li><p><strong>fontFace</strong> – OpenCV Font type.</p></li>
+<li><p><strong>fontScale</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – Font scale factor that is multiplied by the font-specific base size.</p></li>
+<li><p><strong>fontThickness</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – Thickness of the lines used to draw text.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="babysister.drawer.draw_tracking">
+<code class="sig-prename descclassname">babysister.drawer.</code><code class="sig-name descname">draw_tracking</code><span class="sig-paren">(</span><em class="sig-param">im</em>, <em class="sig-param">track</em>, <em class="sig-param">box_color=None</em>, <em class="sig-param">txt_color=(255</em>, <em class="sig-param">255</em>, <em class="sig-param">255)</em>, <em class="sig-param">fontFace=0</em>, <em class="sig-param">fontScale=0.35</em>, <em class="sig-param">fontThickness=1</em>, <em class="sig-param">boxThickness=2</em><span class="sig-paren">)</span><a class="headerlink" href="#babysister.drawer.draw_tracking" title="Permalink to this definition">¶</a></dt>
+<dd><p>Draw tracking.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>im</strong> (<em>ndarray</em>) – image to draw to.</p></li>
+<li><p><strong>track</strong> (<em>ndarray</em>) – tracking data in format [[x0,y0,x1,y1,id], …]</p></li>
+<li><p><strong>bg_color</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em>, </em><em>list of 3 int</em>) – Background color RGB code.</p></li>
+<li><p><strong>txt_color</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em>, </em><em>list of 3 int</em>) – Text color RGB code.</p></li>
+<li><p><strong>fontFace</strong> – OpenCV Font type.</p></li>
+<li><p><strong>fontScale</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – Font scale factor that is multiplied by the font-specific base size.</p></li>
+<li><p><strong>fontThickness</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – Thickness of the lines used to draw text.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="babysister.drawer.put_line_bg">
+<code class="sig-prename descclassname">babysister.drawer.</code><code class="sig-name descname">put_line_bg</code><span class="sig-paren">(</span><em class="sig-param">im</em>, <em class="sig-param">line</em>, <em class="sig-param">top_left</em>, <em class="sig-param">bg_color=(0</em>, <em class="sig-param">0</em>, <em class="sig-param">0)</em>, <em class="sig-param">txt_color=(255</em>, <em class="sig-param">255</em>, <em class="sig-param">255)</em>, <em class="sig-param">fontFace=0</em>, <em class="sig-param">fontScale=0.35</em>, <em class="sig-param">fontThickness=1</em><span class="sig-paren">)</span><a class="headerlink" href="#babysister.drawer.put_line_bg" title="Permalink to this definition">¶</a></dt>
+<dd><p>Put a line of text with background.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>im</strong> (<em>ndarray</em>) – image to draw to.</p></li>
+<li><p><strong>line</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – a line of text.</p></li>
+<li><p><strong>top_left</strong> (<em>list of 2 int</em>) – top_left of text box.</p></li>
+<li><p><strong>bg_color</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em>, </em><em>list of 3 int</em>) – Background color RGB code.</p></li>
+<li><p><strong>txt_color</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em>, </em><em>list of 3 int</em>) – Text color RGB code.</p></li>
+<li><p><strong>fontFace</strong> – OpenCV Font type.</p></li>
+<li><p><strong>fontScale</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – Font scale factor that is multiplied by the font-specific base size.</p></li>
+<li><p><strong>fontThickness</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – Thickness of the lines used to draw text.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><cite>(w, h)</cite> is size of text box.
+<cite>baseLine</cite> is y-coordinate of the baseline wrt the bottom-most text point.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>((w, h), baseLine)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="babysister.drawer.put_lines_bg">
+<code class="sig-prename descclassname">babysister.drawer.</code><code class="sig-name descname">put_lines_bg</code><span class="sig-paren">(</span><em class="sig-param">im</em>, <em class="sig-param">lines</em>, <em class="sig-param">top_left</em>, <em class="sig-param">bg_color=(0</em>, <em class="sig-param">0</em>, <em class="sig-param">0)</em>, <em class="sig-param">txt_color=(255</em>, <em class="sig-param">255</em>, <em class="sig-param">255)</em>, <em class="sig-param">fontFace=0</em>, <em class="sig-param">fontScale=0.35</em>, <em class="sig-param">fontThickness=1</em><span class="sig-paren">)</span><a class="headerlink" href="#babysister.drawer.put_lines_bg" title="Permalink to this definition">¶</a></dt>
+<dd><p>Put lines of text with background.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>im</strong> (<em>ndarray</em>) – image to draw to.</p></li>
+<li><p><strong>line</strong> (<em>list of str</em>) – lines of text.</p></li>
+<li><p><strong>top_left</strong> (<em>list of 2 int</em>) – top_left of text box.</p></li>
+<li><p><strong>bg_color</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em>, </em><em>list of 3 int</em>) – Background color RGB code.</p></li>
+<li><p><strong>txt_color</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em>, </em><em>list of 3 int</em>) – Text color RGB code.</p></li>
+<li><p><strong>fontFace</strong> – OpenCV Font type.</p></li>
+<li><p><strong>fontScale</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – Font scale factor that is multiplied by the font-specific base size.</p></li>
+<li><p><strong>fontThickness</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – Thickness of the lines used to draw text.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><cite>(w, h)</cite> is size of bottom-most text box.
+<cite>baseLine</cite> is y-coordinate of the baseline wrt the bottom-most text point.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>((w, h), baseLine)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Babysister</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, Tran Le Thai Son.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.1.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/babysister.drawer.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

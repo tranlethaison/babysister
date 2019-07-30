@@ -1,4 +1,4 @@
-#rm -f source/babysister.*
+# rm -f source/babysister.*
 sphinx-apidoc \
     -fe \
     -V 2.0.0 \
@@ -8,3 +8,6 @@ sphinx-apidoc \
 
 make clean
 make html
+
+# rm -rf ../docs
+cp -r build/html/* ../docs/

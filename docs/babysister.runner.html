@@ -1,0 +1,149 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>babysister.runner module &#8212; Babysister 2.0.0 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="module-babysister.runner">
+<span id="babysister-runner-module"></span><h1>babysister.runner module<a class="headerlink" href="#module-babysister.runner" title="Permalink to this headline">¶</a></h1>
+<p>Example usage</p>
+<dl class="function">
+<dt id="babysister.runner.run">
+<code class="sig-prename descclassname">babysister.runner.</code><code class="sig-name descname">run</code><span class="sig-paren">(</span><em class="sig-param">framesReader, do_try_reading=False, rois_file='rois.csv', input_size=[416, 416], valid_classes=None, max_boxes=100, score_thresh=0.5, iou_thresh=0.5, max_bb_size_ratio=[1, 1], save_to=None, im_fmt='{:06d}.jpg', log_file=None, delimiter=',', quotechar='&quot;', time_fmt='%Y/%m/%d %H:%M:%S', log_dist=-1, log_save_dist=10, do_show=True, do_show_class=True, winname='Babysister', session_config=None, max_uptime=-1, do_prompt=True</em><span class="sig-paren">)</span><a class="headerlink" href="#babysister.runner.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Objects detecting, online tracking.</p>
+<p>Get frames by <cite>framesReader</cite>,
+for every gotten frame do detecting, online tracking, save result images, logs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>framesReader</strong> – (<a class="reference internal" href="babysister.frames_reader.html#babysister.frames_reader.ImagesReader" title="babysister.frames_reader.ImagesReader"><code class="xref py py-class docutils literal notranslate"><span class="pre">ImagesReader</span></code></a>
+or <a class="reference internal" href="babysister.frames_reader.html#babysister.frames_reader.VideoReader" title="babysister.frames_reader.VideoReader"><code class="xref py py-class docutils literal notranslate"><span class="pre">VideoReader</span></code></a>):
+Get frames as ndarray from a source.</p></li>
+<li><p><strong>do_try_reading</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to continue trying when <cite>framesReader</cite> raises
+<a class="reference internal" href="babysister.frames_reader.html#babysister.frames_reader.FrameReadError" title="babysister.frames_reader.FrameReadError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">FrameReadError</span></code></a>.</p></li>
+<li><p><strong>rois_file</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em>, </em><em>optional</em>) – Path to ROIs data csv file.</p></li>
+<li><p><strong>input_size</strong> (<em>list of 2 int</em><em>, </em><em>optional</em>) – Input size (width, height) use for OBJ detector initial.
+Should has same aspect ratio as frame size.
+None implies frame size.</p></li>
+<li><p><strong>valid_classes</strong> (<em>list of str</em><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)"><em>None</em></a><em>, </em><em>optional</em>) – Only detect these classes, omit others.
+None implies all possible classes.
+All possible classes are in “babysister/YOLOv3_TensorFlow/data/coco.names”.</p></li>
+<li><p><strong>max_boxes</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em>, </em><em>optional</em>) – Maximum detected bounding boxes.</p></li>
+<li><p><strong>score_thresh</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a><em> (</em><em>from 0 to 1</em><em>)</em><em>, </em><em>optional</em>) – Confidence score threshold.</p></li>
+<li><p><strong>iou_thresh</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a><em> (</em><em>from 0 to 1</em><em>)</em><em>, </em><em>optional</em>) – IOU threshold use for detected boxes Non-Maximum Suppression.</p></li>
+<li><p><strong>max_bb_size_ratio</strong> (<em>list of 2 floats</em><em> (</em><em>from 0 to 1</em><em>)</em><em>, </em><em>optional</em>) – Maximum bounding box size ratio wrt frame size.</p></li>
+<li><p><strong>save_to</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)"><em>None</em></a><em>, </em><em>optional</em>) – Path to folder that result images will be saved to.
+None implies no saving.</p></li>
+<li><p><strong>im_fmt</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em>, </em><em>optional</em>) – Frame name format.</p></li>
+<li><p><strong>log_file</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)"><em>None</em></a><em>, </em><em>optional</em>) – Path to csv log file.
+None implies no logging.</p></li>
+<li><p><strong>delimiter</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em>, </em><em>optional</em>) – Delimiter of log file and ROIs data file.</p></li>
+<li><p><strong>quotechar</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em>, </em><em>optional</em>) – Quote character of log file and ROIs data file.</p></li>
+<li><p><strong>time_fmt</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em>, </em><em>optional</em>) – Time format of log file and ROIs data file.</p></li>
+<li><p><strong>log_dist</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a><em>, </em><em>optional</em>) – Time interval (seconds) between logs buffering, result images saving.
+Negative implies buffering all logs, saving all iamges.</p></li>
+<li><p><strong>log_save_dist</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a><em>, </em><em>optional</em>) – Time interval (seconds) between logs saving.</p></li>
+<li><p><strong>do_show</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to show result window.</p></li>
+<li><p><strong>do_show_class</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to show classes, confidence scores.</p></li>
+<li><p><strong>winname</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em>, </em><em>optional</em>) – Result window name.</p></li>
+<li><p><strong>session_config</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tensorflow.ConfigProto</span></code>, optional) – Detector session config.</p></li>
+<li><p><strong>max_uptime</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a><em>, </em><em>optional</em>) – Maximum uptime (seconds).
+Negative implies infinite.</p></li>
+<li><p><strong>do_prompt</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to prompt when <cite>save_to</cite> or <cite>log_file</cite> existed.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Babysister</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, Tran Le Thai Son.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.1.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/babysister.runner.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

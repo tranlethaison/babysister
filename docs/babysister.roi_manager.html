@@ -1,0 +1,202 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>babysister.roi_manager module &#8212; Babysister 2.0.0 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="module-babysister.roi_manager">
+<span id="babysister-roi-manager-module"></span><h1>babysister.roi_manager module<a class="headerlink" href="#module-babysister.roi_manager" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="babysister.roi_manager.ROIManager">
+<em class="property">class </em><code class="sig-prename descclassname">babysister.roi_manager.</code><code class="sig-name descname">ROIManager</code><a class="headerlink" href="#babysister.roi_manager.ROIManager" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>ROI managing routines.</p>
+<dl class="attribute">
+<dt id="babysister.roi_manager.ROIManager.default">
+<code class="sig-name descname">default</code><a class="headerlink" href="#babysister.roi_manager.ROIManager.default" title="Permalink to this definition">¶</a></dt>
+<dd><p>ROI default data in {column: default} format.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)">dict</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="babysister.roi_manager.ROIManager.add_default">
+<em class="property">classmethod </em><code class="sig-name descname">add_default</code><span class="sig-paren">(</span><em class="sig-param">roi_data</em><span class="sig-paren">)</span><a class="headerlink" href="#babysister.roi_manager.ROIManager.add_default" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add default for non-existing column of <cite>roi_data</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>roi_data</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – ROI data in {column: value} format.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="babysister.roi_manager.ROIManager.create_roi_data">
+<em class="property">classmethod </em><code class="sig-name descname">create_roi_data</code><span class="sig-paren">(</span><em class="sig-param">values</em><span class="sig-paren">)</span><a class="headerlink" href="#babysister.roi_manager.ROIManager.create_roi_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a <cite>roi_data</cite> with <cite>values</cite> in {column: value} format.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>values</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)"><em>list</em></a>) – values in the same format as <cite>default</cite>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="sig-name descname">default</code><em class="property"> = {'h': None, 'id': None, 'w': None, 'x': None, 'y': None}</em></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="babysister.roi_manager.ROIManager.read_rois">
+<em class="property">classmethod </em><code class="sig-name descname">read_rois</code><span class="sig-paren">(</span><em class="sig-param">rois_file</em>, <em class="sig-param">delimiter='</em>, <em class="sig-param">'</em>, <em class="sig-param">quotechar='&quot;'</em>, <em class="sig-param">quoting=2</em><span class="sig-paren">)</span><a class="headerlink" href="#babysister.roi_manager.ROIManager.read_rois" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns ROIs data read from <cite>rois_file</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>rois_file</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – ROIs data file path.</p></li>
+<li><p><strong>delimiter</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – delimiter.</p></li>
+<li><p><strong>quotechar</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – quote char.</p></li>
+<li><p><strong>quoting</strong> (<em>csv.QUOTE_xxx constant</em>) – quoting instruction.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>ROIs data, with ROI format {column: value}.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list of dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="babysister.roi_manager.ROIManager.select_rois">
+<em class="property">classmethod </em><code class="sig-name descname">select_rois</code><span class="sig-paren">(</span><em class="sig-param">in_file</em>, <em class="sig-param">is_video=False</em>, <em class="sig-param">save_to='rois.csv'</em>, <em class="sig-param">delimiter='</em>, <em class="sig-param">'</em>, <em class="sig-param">quotechar='&quot;'</em>, <em class="sig-param">quoting=2</em><span class="sig-paren">)</span><a class="headerlink" href="#babysister.roi_manager.ROIManager.select_rois" title="Permalink to this definition">¶</a></dt>
+<dd><p>Select ROIs over an image or video file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>in_file</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – input file path.</p></li>
+<li><p><strong>is_video</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – whether <cite>in_file</cite> is a video file.</p></li>
+<li><p><strong>save_to</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – csv file path to save ROIs data to.</p></li>
+<li><p><strong>delimiter</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – delimiter.</p></li>
+<li><p><strong>quotechar</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – quote char.</p></li>
+<li><p><strong>quoting</strong> (<em>csv.QUOTE_xxx constant</em>) – quoting instruction.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="babysister.roi_manager.ROIManager.select_rois_over_image">
+<em class="property">classmethod </em><code class="sig-name descname">select_rois_over_image</code><span class="sig-paren">(</span><em class="sig-param">im</em>, <em class="sig-param">save_to</em>, <em class="sig-param">delimiter</em>, <em class="sig-param">quotechar</em>, <em class="sig-param">quoting</em><span class="sig-paren">)</span><a class="headerlink" href="#babysister.roi_manager.ROIManager.select_rois_over_image" title="Permalink to this definition">¶</a></dt>
+<dd><p>Select ROIs over a ndarray image.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>im</strong> (<em>ndarray</em>) – image to select ROIs over.</p></li>
+<li><p><strong>save_to</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – csv file path to save ROIs data to.</p></li>
+<li><p><strong>delimiter</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – delimiter.</p></li>
+<li><p><strong>quotechar</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – quote char.</p></li>
+<li><p><strong>quoting</strong> (<em>csv.QUOTE_xxx constant</em>) – quoting instruction.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Babysister</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, Tran Le Thai Son.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.1.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/babysister.roi_manager.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
