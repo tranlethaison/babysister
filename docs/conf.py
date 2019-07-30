@@ -1,7 +1,7 @@
 import sys
 import os
 
-sys.path.append(os.path.abspath(".."))
+sys.path.append(os.path.abspath('..'))
 
 # Configuration file for the Sphinx documentation builder.
 #
@@ -68,3 +68,6 @@ html_static_path = ['_static']
 
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {'https://docs.python.org/': None}
+
+# Fix ReadTheDocs build error
+master_doc = 'index'
