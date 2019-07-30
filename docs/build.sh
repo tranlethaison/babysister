@@ -2,12 +2,9 @@
 sphinx-apidoc \
     -fe \
     -V 2.0.0 \
-    -o ./source/ ../babysister/ \
+    -o ./ ../babysister/ \
     ../babysister/YOLOv3_TensorFlow/ \
     ../babysister/sort/
 
 make clean
 make html
-
-# rm -rf ../docs
-cp -r build/html/* ../docs/

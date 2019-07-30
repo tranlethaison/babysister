@@ -8,7 +8,7 @@
     - [Select ROIs](#select-rois)
     - [Run](#run)
   - [Documentation](#documentation)
-    - [How to generate?](#how-to-generate)
+    - [Generate for local using](#generate-for-local-using)
   - [TODO](#todo)
   - [Credits](#credits)
   - [Copying](#copying)
@@ -68,9 +68,9 @@ $ python demo.py video demo/TownCentre_720p.mp4 \
 
 ## Documentation
 
-  [Generated with Sphinx](https://tranlethaison.github.io/babysister/)
+  [Read the Docs]()
 
-### How to generate?
+### Generate for local using
 
 ```shell
 $ cd sphinx
