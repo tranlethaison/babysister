@@ -1,14 +1,17 @@
 # Babysister
 
--   [Babysister](#babysister)
-    -   [Introduction](#introduction)
-    -   [Weights conversion](#weights-conversion)
-    -   [Usage](#usage)
-    -   [Demo](#demo)
-    -   [Documentation](#documentation)
-    -   [TODO](#todo)
-    -   [Credits](#credits)
-    -   [Copying](#copying)
+- [Babysister](#babysister)
+  - [Introduction](#introduction)
+  - [Weights conversion](#weights-conversion)
+  - [Usage](#usage)
+  - [Demo](#demo)
+    - [Select ROIs](#select-rois)
+    - [Run](#run)
+  - [Documentation](#documentation)
+    - [How to generate?](#how-to-generate)
+  - [TODO](#todo)
+  - [Credits](#credits)
+  - [Copying](#copying)
 
 ## Introduction
 
@@ -43,13 +46,13 @@ $ python convert_weight.py
 
   Download demo videos from [here](https://drive.google.com/drive/folders/1V5W7tBTlW9LoYb2HTenKWJp18eleh_TV?usp=sharing), place them in `demo` folder.  
 
-  Select ROIs:
+### Select ROIs
 
 ```shell
 $ python select_rois.py demo/TownCentre_720p.mp4 --is-video 1 --save-to demo/rois.csv
 ```
 
-  Run:
+### Run
 
 ```shell
 $ python demo.py video demo/TownCentre_720p.mp4 \
@@ -65,7 +68,15 @@ $ python demo.py video demo/TownCentre_720p.mp4 \
 
 ## Documentation
 
-  [Generated with Sphinx](doc/_build/index.html)
+  [Generated with Sphinx](https://tranlethaison.github.io/babysister/)
+
+### How to generate?
+
+```shell
+$ cd sphinx
+$ ./start.sh
+$ ./build.sh 
+```
 
 * * *
 

@@ -9,3 +9,9 @@ sphinx-quickstart \
     --ext-githubpages \
     --extensions sphinx.ext.napoleon \
     ./
+
+CONF="./source/conf.py "
+ROOT="../.."
+printf "import sys\nimport os\n\nsys.path.append(os.path.abspath(\"$ROOT\"))\n\n" \
+    | cat - $CONF > temp
+mv temp $CONF
