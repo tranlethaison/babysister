@@ -1,4 +1,5 @@
 """Example usage"""
+import sys
 import os
 import time
 
@@ -118,7 +119,7 @@ def run(
             pass
         else:
             print("(ʘ‿ʘ)╯ Bye!")
-            exit(0)
+            sys.exit(0)
     else:
         os.makedirs(save_to, exist_ok=True)
 
@@ -132,13 +133,12 @@ def run(
             pass
         else:
             print("(ʘ‿ʘ)╯ Bye!")
-            exit(0)
-
-    # Init logger
-    header = ["im_file_name", "timestamp", "roi_id", "n_objs"]
-    logger = Logger(log_file, header, delimiter, quotechar)
-    logger.open(mode="w+")
-    logger.write_header()
+            sys.exit(0)
+    if log_file:
+        header = ["im_file_name", "timestamp", "roi_id", "n_objs"]
+        logger = Logger(log_file, header, delimiter, quotechar)
+        logger.open(mode="w+")
+        logger.write_header()
 
     # Load ROIs data
     frame_w, frame_h = framesReader.get_frame_size()
@@ -272,8 +272,8 @@ def run(
                 # print(log_line)
 
         if do_log_save and log_file:
-            str_time = get_str_localtime(time_fmt, now)
-            logger.info([None, str_time, None, None])
+            # str_time = get_str_localtime(time_fmt, now)
+            # logger.info([None, str_time, None, None])
             logger.save()
 
         put_line_bg(frame, "FPS: {:.02f}".format(fpsCounter.get()), (frame_w // 2, 0))
