@@ -70,7 +70,7 @@ class ROIManager:
             print("ROIs data:")
             for roi_n, roi_val in enumerate(rois):
                 x, y, w, h = roi_val
-                roi_data = cls.create_roi([roi_n, x, y, w, h])
+                roi_data = cls.create_roi_data([roi_n, x, y, w, h])
                 cls.add_default(roi_data)
 
                 writer.writerow(roi_data)
