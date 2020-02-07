@@ -61,16 +61,17 @@ class YOLOv3TF2:
                 `scores` (Tensor) is confidence scores.
                 `classes` (Tensor) is class indexes.
         """
-        t1 = time.time()
-        img_raw = tf.convert_to_tensor(img_np, dtype=tf.uint8)
-        t2 = time.time()
-        print("convert time: {}".format(t2 - t1))
+        # t1 = time.time()
+        # img_raw = tf.convert_to_tensor(img_np, dtype=tf.uint8)
+        # img_raw = img_np
+        # t2 = time.time()
+        # print("convert time: {}".format(t2 - t1))
 
-        img = tf.expand_dims(img_raw, 0)
+        img = tf.expand_dims(img_np, 0)
         img = transform_images(img, self.size)
 
         t1 = time.time()
-        boxes, scores, classes, nums = self.yolo(img)
+        boxes, scores, classes, nums = self.yolo.predict(img)
         t2 = time.time()
         print("detect time: {}".format(t2 - t1))
 
