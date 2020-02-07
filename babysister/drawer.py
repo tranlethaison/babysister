@@ -163,7 +163,7 @@ def draw_detection(
     cv.rectangle(im, (x0, y0), (x1, y1), box_color, boxThickness)
 
     if do_show_class:
-        line = "{:.02f} {}".format(score, classes[label])
+        line = "{:.02f} {}".format(score, classes[int(label)])
         (txt_w, txt_h), baseLine = cv.getTextSize(
             line, fontFace, fontScale, fontThickness
         )
