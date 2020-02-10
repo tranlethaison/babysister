@@ -2,7 +2,7 @@ import os
 import csv
 import cv2 as cv
 
-from babysister.prompter import query_yes_no
+from .prompter import query_yes_no
 
 
 class ROIManager:
