@@ -62,10 +62,8 @@ def run(
             :py:exc:`~babysister.frames_reader.FrameReadError`.
         rois_file (str, optional):
             Path to ROIs data csv file.
-        input_size (list of 2 int, optional):
-            Input size (width, height) use for OBJ detector initial.
-            Should has same aspect ratio as frame size.
-            None implies frame size.
+        input_size (integer, optional):
+            Input size use for OBJ detector initial.
         valid_classes (list of str or None, optional):
             Only detect these classes, omit others.
             None implies all possible classes.
@@ -146,13 +144,13 @@ def run(
     # Load ROIs data
     frame_w, frame_h = framesReader.get_frame_size()
     rois = ROIManager.read_rois(rois_file, delimiter, quotechar)
-    if input_size is None:
-        input_size = frame_w
 
     # [Core]
     yolov3 = YOLOv3TF2(
-        size=input_size,
+        input_size=input_size,
+        max_boxes=max_boxes,
         score_thresh=score_thresh,
+        iou_thresh=iou_thresh,
         tiny=tiny,
     )
     detector = Detector(yolov3)

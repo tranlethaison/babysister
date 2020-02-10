@@ -11,7 +11,7 @@ class Detector:
 
     def __init__(self, detector_core):
         self.detector_core = detector_core
-        self.input_size = [detector_core.size] * 2
+        self.input_size = detector_core.input_size
 
     def detect(self, img_np, valid_classes, max_bb_size_ratio):
         """Wrapper for :func:`self.detector_core.detect` with additional logics.
@@ -61,7 +61,7 @@ class Detector:
         # filter by box size wrt image size.
         if np.greater([1, 1], max_bb_size_ratio).any():
             tmp_boxes, tmp_scores, tmp_labels = [], [], []
-            h, w = im.shape[:2]
+            h, w = img_np.shape[:2]
 
             for box, score, label in zip(boxes, scores, labels):
                 x0, y0, x1, y1 = box
