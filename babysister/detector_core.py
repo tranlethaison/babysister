@@ -26,10 +26,10 @@ class YOLOv3TF2:
         max_boxes=30,
         score_thresh=0.5,
         iou_thresh=0.5,
-        tiny=False,
         num_classes=80,
-        classes_path="babysister/YOLOv3_TF2/data/coco.names",
-        weights_path="babysister/YOLOv3_TF2/checkpoints/yolov3.tf",
+        tiny=False,
+        weights_path=None,
+        classes_path=None,
     ):
         self.input_size = input_size
         self.score_thresh = score_thresh
@@ -45,6 +45,8 @@ class YOLOv3TF2:
                 yolo_iou_threshold=iou_thresh,
                 yolo_score_threshold=score_thresh,
             )
+            if not weights_path:
+                weights_path = "babysister/YOLOv3_TF2/checkpoints/yolov3-tiny.tf"
         else:
             self.yolo = YoloV3(
                 classes=num_classes,
@@ -52,10 +54,14 @@ class YOLOv3TF2:
                 yolo_iou_threshold=iou_thresh,
                 yolo_score_threshold=score_thresh,
             )
+            if not weights_path:
+                weights_path = "babysister/YOLOv3_TF2/checkpoints/yolov3.tf"
 
         self.yolo.load_weights(weights_path).expect_partial()
         logging.info("weights loaded")
 
+        if not classes_path:
+            classes_path = "babysister/YOLOv3_TF2/data/coco.names"
         self.class_names = [c.strip() for c in open(classes_path).readlines()]
         logging.info("classes loaded")
 
