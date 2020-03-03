@@ -45,6 +45,8 @@ def run(
     session_config=None,
     max_uptime=-1,
     do_prompt=True,
+    classes_path=None,
+    weights_path=None,
     tiny=False,
 ):
     """Objects detecting, online tracking.
@@ -151,6 +153,8 @@ def run(
         max_boxes=max_boxes,
         score_thresh=score_thresh,
         iou_thresh=iou_thresh,
+        classes_path=classes_path,
+        weights_path=weights_path,
         tiny=tiny,
     )
     detector = Detector(yolov3)
