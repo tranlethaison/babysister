@@ -30,13 +30,31 @@ class YOLOv3TF2:
         tiny=False,
         weights_path=None,
         classes_path=None,
+        memory_limit=None,
     ):
         self.input_size = input_size
         self.score_thresh = score_thresh
 
-        physical_devices = tf.config.experimental.list_physical_devices("GPU")
-        if len(physical_devices) > 0:
-            tf.config.experimental.set_memory_growth(physical_devices[0], True)
+        gpus = tf.config.experimental.list_physical_devices("GPU")
+        if gpus:
+            if memory_limit:
+                try:
+                    tf.config.experimental.set_virtual_device_configuration(
+                        gpus[0],
+                        [
+                            tf.config.experimental.VirtualDeviceConfiguration(
+                                memory_limit=memory_limit
+                            )
+                        ],
+                    )
+                    logical_gpus = tf.config.experimental.list_logical_devices("GPU")
+                except RuntimeError as e:
+                    raise
+
+                self.gpu = logical_gpus[0]
+            else:
+                tf.config.experimental.set_memory_growth(gpus[0], True)
+                self.gpu = gpus[0]
 
         if tiny:
             self.yolo = YoloV3Tiny(

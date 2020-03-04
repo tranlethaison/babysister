@@ -42,12 +42,13 @@ def run(
     do_show=True,
     do_show_class=True,
     winname="Babysister",
-    session_config=None,
     max_uptime=-1,
     do_prompt=True,
     classes_path=None,
     weights_path=None,
     tiny=False,
+    memory_limit=None,
+    max_loop=-1,
 ):
     """Objects detecting, online tracking.
 
@@ -103,8 +104,6 @@ def run(
             Whether to show classes, confidence scores.
         winname (str, optional):
             Result window name.
-        session_config (:py:class:`tensorflow.ConfigProto`, optional):
-            Detector session config.
         max_uptime (float, optional):
             Maximum uptime (seconds).
             Negative implies infinite.
@@ -156,6 +155,7 @@ def run(
         classes_path=classes_path,
         weights_path=weights_path,
         tiny=tiny,
+        memory_limit=memory_limit,
     )
     detector = Detector(yolov3)
     # tracker = SORT()
@@ -175,8 +175,13 @@ def run(
     exp_n_save_times = max_uptime // log_save_dist
 
     # Main loop
-    frame_num = int(0)
+    frame_num = int(-1)
     while 1:
+        frame_num += 1
+        if max_loop >= 0 and frame_num >= max_loop:
+            print("Maximum loop reached ({}). Good bye!".format(max_loop))
+            break
+
         if frame_num == 0:
             # Start all stopwatches
             now = log_sw.start()
@@ -299,7 +304,6 @@ def run(
             log_save_sw.start()
 
         fpsCounter.tick()
-        frame_num += 1
 
     if log_file:
         logger.close()
