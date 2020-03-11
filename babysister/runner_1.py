@@ -9,7 +9,8 @@ import numpy as np
 
 from .frames_reader import FrameReadError
 from .detector_core import YOLOv3TF2
-#from .sort_wrapper import SORT
+
+# from .sort_wrapper import SORT
 from .detector_1 import Detector
 from .cv_logics import is_inside_roi
 from .roi_manager import ROIManager
@@ -49,6 +50,7 @@ def run(
     weights_path=None,
     tiny=False,
     memory_limit=None,
+    log_save_event=None,
     kill_event=None,
 ):
     """Objects detecting, online tracking.
@@ -281,6 +283,8 @@ def run(
             # str_time = get_str_localtime(time_fmt, now)
             # logger.info([None, str_time, None, None])
             logger.save()
+            if log_save_event.__class__ is multiprocessing.synchronize.Event:
+                log_save_event.set()
 
         put_line_bg(frame, "FPS: {:.02f}".format(fpsCounter.get()), (frame_w // 2, 0))
 
