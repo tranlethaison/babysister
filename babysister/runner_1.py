@@ -2,6 +2,7 @@
 import sys
 import os
 import time
+import multiprocessing
 
 import cv2 as cv
 import numpy as np
@@ -32,13 +33,13 @@ def run(
     iou_thresh=0.5,
     max_bb_size_ratio=[1, 1],
     save_to=None,
-    im_fmt="{:06d}.jpg",
+    im_format="{:06d}.jpg",
     log_file=None,
     delimiter=",",
     quotechar='"',
     time_fmt="%Y/%m/%d %H:%M:%S",
-    log_dist=-1,
-    log_save_dist=10,
+    log_frame_time=-1,
+    log_save_time=10,
     do_show=True,
     do_show_class=True,
     winname="Babysister",
@@ -48,7 +49,7 @@ def run(
     weights_path=None,
     tiny=False,
     memory_limit=None,
-    max_loop=-1,
+    kill_event=None,
 ):
     """Objects detecting, online tracking.
 
@@ -82,7 +83,7 @@ def run(
         save_to (str or None, optional):
             Path to folder that result images will be saved to.
             None implies no saving.
-        im_fmt (str, optional):
+        im_format (str, optional):
             Frame name format.
         log_file (str or None, optional):
             Path to csv log file.
@@ -93,10 +94,10 @@ def run(
             Quote character of log file and ROIs data file.
         time_fmt (str, optional):
             Time format of log file and ROIs data file.
-        log_dist (float, optional):
+        log_frame_time (float, optional):
             Time interval (seconds) between logs buffering, result images saving.
             Negative implies buffering all logs, saving all iamges.
-        log_save_dist (float, optional):
+        log_save_time (float, optional):
             Time interval (seconds) between logs saving.
         do_show (bool, optional):
             Whether to show result window.
@@ -162,32 +163,29 @@ def run(
 
     # Stopwatches, FPS counter
     fpsCounter = FPSCounter(interval=1)
-    log_sw = StopWatch(precision=0)
+    log_frame_sw = StopWatch(precision=0)
     log_save_sw = StopWatch(precision=0)
 
     # Init main loop conditions
-    do_log_every_frame = log_dist < 0
+    do_log_every_frame = log_frame_time < 0
     if not do_log_every_frame:
         n_log_writing = 0
-        exp_n_log_writing = log_save_dist // log_dist
+        exp_n_log_writing = log_save_time // log_frame_time
 
     n_save_times = 0
-    exp_n_save_times = max_uptime // log_save_dist
+    exp_n_save_times = max_uptime // log_save_time
 
     # Main loop
-    frame_num = int(-1)
+    n_frames = int(-1)
     while 1:
-        frame_num += 1
-        if max_loop >= 0 and frame_num >= max_loop:
-            print("Maximum loop reached ({}). Good bye!".format(max_loop))
-            break
+        n_frames += 1
 
-        if frame_num == 0:
+        if n_frames == 0:
             # Start all stopwatches
-            now = log_sw.start()
+            now = log_frame_sw.start()
             log_save_sw.start_at(now)
         else:
-            now = log_sw.time()  # Use this "timestamp" when writting logs
+            now = log_frame_sw.time()  # Use this "timestamp" when writting logs
 
         # Read a frame
         try:
@@ -197,14 +195,14 @@ def run(
             if do_try_reading:
                 continue
             break
-        im_file_name = im_fmt.format(frame_num)
+        im_file_name = im_format.format(n_frames)
 
         # Whether to write log, save log
         if do_log_every_frame:
             do_log = True
-            do_log_save = log_save_sw.elapsed() >= log_save_dist
+            do_log_save = log_save_sw.elapsed() >= log_save_time
         else:
-            do_log = log_sw.elapsed() >= log_dist
+            do_log = log_frame_sw.elapsed() >= log_frame_time
             if do_log:
                 n_log_writing += 1
 
@@ -295,11 +293,14 @@ def run(
                 break
 
         if do_end:
+            if kill_event.__class__ is multiprocessing.synchronize.Event:
+                kill_event.set()
+            print("[{}] Max uptime ({}s) reached. Goodbye.".format(winname, max_uptime))
             break
 
         # Restart all stopwatches
         if do_log and not do_log_every_frame:
-            log_sw.start()
+            log_frame_sw.start()
         if do_log_save and do_log_every_frame:
             log_save_sw.start()
 
