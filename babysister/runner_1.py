@@ -7,6 +7,8 @@ import multiprocessing
 import cv2 as cv
 import numpy as np
 
+from icecream import ic
+
 from .frames_reader import FrameReadError
 from .detector_core import YOLOv3TF2
 
@@ -52,6 +54,7 @@ def run(
     memory_limit=None,
     log_save_event=None,
     kill_event=None,
+    timeout=0,
 ):
     """Objects detecting, online tracking.
 
@@ -146,7 +149,6 @@ def run(
         logger.write_header()
 
     # Load ROIs data
-    frame_w, frame_h = framesReader.get_frame_size()
     rois = ROIManager.read_rois(rois_file, delimiter, quotechar)
 
     # [Core]
@@ -167,6 +169,7 @@ def run(
     fpsCounter = FPSCounter(interval=1)
     log_frame_sw = StopWatch(precision=0)
     log_save_sw = StopWatch(precision=0)
+    timeout_sw = StopWatch(precision=0)
 
     # Init main loop conditions
     do_log_every_frame = log_frame_time < 0
@@ -186,17 +189,27 @@ def run(
             # Start all stopwatches
             now = log_frame_sw.start()
             log_save_sw.start_at(now)
+            timeout_sw.start_at(now)
         else:
             now = log_frame_sw.time()  # Use this "timestamp" when writting logs
 
         # Read a frame
         try:
-            frame = framesReader.read()
+            frame = framesReader.read(timeout=timeout)
         except FrameReadError as err:
             print(err)
-            if do_try_reading:
+            if do_try_reading and timeout_sw.elapsed() < timeout:
+                print("[{}] Waiting for camera connection".format(winname))
                 continue
-            break
+            else:
+                print(
+                    "[{}] Done waiting for camera connection. Goodbye.".format(winname)
+                )
+                if kill_event.__class__ is multiprocessing.synchronize.Event:
+                    kill_event.set()
+                break
+
+        frame_h, frame_w, __ = frame.shape
         im_file_name = im_format.format(n_frames)
 
         # Whether to write log, save log
