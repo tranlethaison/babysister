@@ -18,8 +18,7 @@
 
 ## Introduction
 
-  Objects detection and online tracking.  
-  Plug-in style code, can be easily adapted to different purposes.
+  Objects detection and online tracking api.  
 
 * * *
 
